@@ -1,21 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Single Canvas</title>
+  <title>Tiling</title>
   <style>
     body {
-      margin: 0; /* Remove default body margin */
-      overflow: hidden; /* Hide scrollbars */
-      background-color: #f0f0f0; /* Optional: Set a background color */
+      margin: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
     }
 
     canvas {
-      display: block; /* Make the canvas a block-level element */
+      display: block;
+    }
+
+    .control-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .control-container input[type="range"] {
+      width: 360px;
     }
   </style>
 </head>
 <body>
   <canvas id="myCanvas"></canvas>
-  <script src="canvasScript.js"></script>
+  <div class="control-container">
+    <label for="angleControl">Angle:</label>
+    <input type="range" id="angleControl" min="0" max="360" value="0">
+  </div>
+  <script type="module" src="canvasScript.js"></script>
 </body>
 </html>
