@@ -1,4 +1,4 @@
-import * as squareTiling from './squareTiling.js';
+import * as tiling from './tiling.js';
 
 document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const angleControl = document.getElementById('angleControl');
     angleControl.addEventListener('input', (event) => {
         angle = 2 * Math.PI * event.target.value / 360;
-        squareTiling.drawTiling(ctx, angle);
+        tiling.drawTiling(ctx, angle);
     });
 
     // Resize the canvas to fill the entire browser window
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        squareTiling.drawTiling(ctx, angle);
+        tiling.drawTiling(ctx, angle);
     }
 
     // Initial resize

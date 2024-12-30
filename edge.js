@@ -8,6 +8,10 @@ class Edge {
         return new Edge(this.lengthFn, () => Math.PI + this.angleFn());
     }
 
+    plus(angleFn) {
+        return new Edge(this.lengthFn, () => this.angleFn() + angleFn());
+    }
+
     get re() {
         return this.lengthFn() * Math.cos(this.angleFn());
     }
@@ -18,4 +22,6 @@ class Edge {
 
 }
 
-export default Edge;
+class ControlPoint {}
+
+export { Edge, ControlPoint };
