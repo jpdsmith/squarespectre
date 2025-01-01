@@ -22,6 +22,45 @@ class Edge {
 
 }
 
-class ControlPoint {}
+class ControlPoint {
+    opposite() {
+        return this;
+    }
+}
 
-export { Edge, ControlPoint };
+class EndPoint {
+    constructor(type){
+        this.type = type;
+        this.isOpposite = false;
+        this.oppositeValue = null;
+    }
+
+    opposite() {
+        if (this.oppositeValue === null) {
+            this.oppositeValue = new EndPoint(this.type);
+            this.oppositeValue.isOpposite = true;
+            this.oppositeValue.oppositeValue = this;
+        }
+        return this.oppositeValue;
+    }
+}
+
+class TipPoint {
+    constructor(type){
+        this.type = type;
+        this.isOpposite = false;
+        this.oppositeValue = null;
+    }
+
+    opposite() {
+        if (this.oppositeValue === null) {
+            this.oppositeValue = new TipPoint(this.type);
+            this.oppositeValue.isOpposite = true;
+            this.oppositeValue.oppositeValue = this;
+        }
+        return this.oppositeValue;
+    }
+}
+
+
+export { Edge, ControlPoint, EndPoint, TipPoint };
