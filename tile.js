@@ -1,6 +1,8 @@
 
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
+const DRAW_POINTS = true;
+
 class Tile {
     constructor(edges) {
         this.edges = edges;
@@ -29,6 +31,9 @@ class Tile {
     }
 
     draw(ctx, angle) {
+        const tips = [];
+        const endPoints = [];
+        const controlPoints = [];
         ctx.strokeStyle = '#000';
         ctx.fillStyle = '#f00'; // Set fill color to red
         ctx.beginPath();
@@ -36,6 +41,15 @@ class Tile {
         let im = 500;
         ctx.moveTo(re, im);
         for (let i = 0; i < this.edges.length; i++) {
+            if (this.edges[i] instanceof TipPoint) {
+                tips.push({'re': re, 'im': im});
+            }
+            if (this.edges[i] instanceof EndPoint) {
+                endPoints.push({'re': re, 'im': im});
+            }
+            if (this.edges[i] instanceof ControlPoint) {
+                controlPoints.push({'re': re, 'im': im});
+            }   
             if (!(this.edges[i] instanceof Edge)) {
                 continue;
             }
@@ -47,6 +61,27 @@ class Tile {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
+        if (!DRAW_POINTS) {
+            return;
+        }
+        for (let i = 0; i < tips.length; i++) {
+            ctx.fillStyle = '#0f0';
+            ctx.beginPath();
+            ctx.arc(tips[i].re, tips[i].im, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        for (let i = 0; i < endPoints.length; i++) {
+            ctx.fillStyle = '#00f';
+            ctx.beginPath();
+            ctx.arc(endPoints[i].re, endPoints[i].im, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        for (let i = 0; i < controlPoints.length; i++) {
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(controlPoints[i].re, controlPoints[i].im, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
     }
 
     edgesAndTipsOnly() {

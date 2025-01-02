@@ -2,7 +2,7 @@
 import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const EDGE_LENGTH =25;
+const EDGE_LENGTH = 25;
 
 function drawTiling(ctx, angleValue, xValue, yValue, zValue) {
     const angle = () => angleValue;
@@ -154,7 +154,7 @@ function drawTiling(ctx, angleValue, xValue, yValue, zValue) {
         S1y.joinPoints(TC1.opposite(), endPointY, endPointX.opposite()),
         tipY.opposite());
     TA1.draw(ctx, angle);
-    //S3x.draw(ctx, angle);
+    // I0x.draw(ctx, angle);
 }
 
 function conwayS(sa, ia, sb, ib, e, o) {
