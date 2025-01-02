@@ -6,6 +6,20 @@ class Tile {
         this.edges = edges;
     }
 
+    withAlternatingEdges(initialParity = 1) {
+        let parity = initialParity;
+        const newEdges = [];
+        for (let i = 0; i < this.edges.length; i++) {
+            if (this.edges[i] instanceof Edge) {
+                newEdges.push(this.edges[i].withParity(parity));
+                parity *= -1;
+            } else {
+                newEdges.push(this.edges[i]);
+            }
+        }
+        return new Tile(newEdges);
+    }
+
     opposite() {
         const newEdges = [];
         for (let i = 0; i < this.edges.length; i++) {
@@ -14,17 +28,18 @@ class Tile {
         return new Tile(newEdges);
     }
 
-    draw(ctx) {
+    draw(ctx, angle) {
         ctx.strokeStyle = '#000';
         ctx.fillStyle = '#f00'; // Set fill color to red
         ctx.beginPath();
         let re = 500;
-        let im = 300;
+        let im = 500;
         ctx.moveTo(re, im);
         for (let i = 0; i < this.edges.length; i++) {
             if (!(this.edges[i] instanceof Edge)) {
                 continue;
             }
+            ctx.lineTo(re + this.edges[i].midRe(angle), im + this.edges[i].midIm(angle));
             re += this.edges[i].re;
             im += this.edges[i].im;
             ctx.lineTo(re, im);
