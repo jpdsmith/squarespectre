@@ -1,29 +1,34 @@
 class Edge {
-    constructor(lengthFn, angleFn, direction, parity) {
+    constructor(lengthFn, angleFn, direction = 1, parity = 1, surroundsHole = false) {
         this.lengthFn = lengthFn;
         this.angleFn = angleFn;
-        this.direction = direction || 1;
-        this.parity = parity || 1;
+        this.direction = direction;
+        this.parity = parity;
+        this.surroundsHole = surroundsHole;
     }
 
     inwards() {
-        return new Edge(this.lengthFn, this.angleFn, -1, this.parity);
+        return new Edge(this.lengthFn, this.angleFn, -1, this.parity, this.surroundsHole);
     }
 
     withParity(parity) {
-        return new Edge(this.lengthFn, this.angleFn, this.direction, parity);
+        return new Edge(this.lengthFn, this.angleFn, this.direction, parity, this.surroundsHole);
     }
 
     opposite() {
-        return new Edge(this.lengthFn, () => Math.PI + this.angleFn(), this.direction, this.parity);
+        return new Edge(this.lengthFn, () => Math.PI + this.angleFn(), this.direction, this.parity, this.surroundsHole);
+    }
+
+    markHole() {
+        return new Edge(this.lengthFn, this.angleFn, this.direction, this.parity, true);
     }
 
     plus(angleFn) {
-        return new Edge(this.lengthFn, () => this.angleFn() + angleFn(), this.direction, this.parity);
+        return new Edge(this.lengthFn, () => this.angleFn() + angleFn(), this.direction, this.parity, this.surroundsHole);
     }
 
     times(factor) {
-        return new Edge(() => this.lengthFn() * factor(), this.angleFn, this.direction, this.parity);
+        return new Edge(() => this.lengthFn() * factor(), this.angleFn, this.direction, this.parity, this.surroundsHole);
     }
 
     get re() {

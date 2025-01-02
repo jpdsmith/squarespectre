@@ -42,21 +42,24 @@ class Tile {
         ctx.moveTo(re, im);
         for (let i = 0; i < this.edges.length; i++) {
             if (this.edges[i] instanceof TipPoint) {
-                tips.push({'re': re, 'im': im});
+                tips.push({ 're': re, 'im': im });
             }
             if (this.edges[i] instanceof EndPoint) {
-                endPoints.push({'re': re, 'im': im});
+                endPoints.push({ 're': re, 'im': im });
             }
             if (this.edges[i] instanceof ControlPoint) {
-                controlPoints.push({'re': re, 'im': im});
-            }   
+                controlPoints.push({ 're': re, 'im': im });
+            }
             if (!(this.edges[i] instanceof Edge)) {
                 continue;
             }
             ctx.lineTo(re + this.edges[i].midRe(angle), im + this.edges[i].midIm(angle));
             re += this.edges[i].re;
             im += this.edges[i].im;
-            ctx.lineTo(re, im);
+            if (!this.edges[i].surroundsHole) {
+                // Skip this line to prevent the tile having an ugly internal line.
+                ctx.lineTo(re, im);
+            }
         }
         ctx.closePath();
         ctx.fill();
