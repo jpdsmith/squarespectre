@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Tiling</title>
   <style>
@@ -22,17 +23,38 @@
       border-radius: 10px;
     }
 
-    .control-container input[type="range"] {
+    .angle-container input[type="range"] {
       width: 360px;
+    }
+    .length-container input[type="range"] {
+      width: 200px;
     }
   </style>
 </head>
+
 <body>
   <canvas id="myCanvas"></canvas>
   <div class="control-container">
-    <label for="angleControl">Angle:</label>
-    <input type="range" id="angleControl" min="0" max="360" value="0">
+    <div class="angle-container">
+      <label for="angleControl">Angle:</label>
+      <input type="range" id="angleControl" min="0" max="360" value="0">
+    </div>
+    <div class="length-container">
+      <div>
+        <label for="xFactor">Length X:</label>
+        <input type="range" id="xFactor" min="0" max="100" value="100">
+      </div>
+      <div>
+        <label for="yFactor">Length Y:</label>
+        <input type="range" id="yFactor" min="0" max="100" value="100">
+      </div>
+      <div>
+        <label for="zFactor">Length Z:</label>
+        <input type="range" id="zFactor" min="0" max="100" value="100">
+      </div>
+    </div>
   </div>
   <script type="module" src="canvasScript.js"></script>
 </body>
+
 </html>
