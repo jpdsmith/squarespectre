@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
     const ctx = canvas.getContext('2d');
     let angle = 0;
+    let morph = 0.0;
     let xfactor = 1;
     let yfactor = 1;
     let zfactor = 1;
@@ -11,22 +12,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const angleControl = document.getElementById('angleControl');
     angleControl.addEventListener('input', (event) => {
         angle = 2 * Math.PI * event.target.value / 360;
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
+    });
+    const morphControl = document.getElementById('morphControl');
+    morphControl.addEventListener('input', (event) => {
+        morph = 1.0 * event.target.value / 100;
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
     });
     const lengthControlX = document.getElementById('xFactor');
     lengthControlX.addEventListener('input', (event) => {
         xfactor = event.target.value / 100;
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
     });
     const lengthControlY = document.getElementById('yFactor');
     lengthControlY.addEventListener('input', (event) => {
         yfactor = event.target.value / 100;
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
     });
     const lengthControlZ = document.getElementById('zFactor');
     lengthControlZ.addEventListener('input', (event) => {
         zfactor = event.target.value / 100;
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
     });
 
     // Resize the canvas to fill the entire browser window
@@ -34,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph);
     }
 
     // Initial resize

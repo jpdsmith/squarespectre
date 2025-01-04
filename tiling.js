@@ -3,37 +3,35 @@ import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
 const EDGE_LENGTH = 25;
-const ANGLE_1 =  Math.PI / 2;
-const ANGLE_2 = Math.PI / 3;
-const ANGLE_3 = Math.PI / 6;
-const ANGLE_4 = 0;
-const ANGLE_5 = -Math.PI / 6;
-const ANGLE_6 = -Math.PI / 3;
 
-function drawTiling(ctx, angle, xValue, yValue, zValue) {
-    const xFactor = () => xValue;
-    const yFactor = () => yValue;
-    const zFactor = () => zValue;
+
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
+    const ANGLE_1 = Math.PI / 2;
+    const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1/4 - 1/3);
+    const ANGLE_3 = Math.PI / 6 + morph * Math.PI * (1/4 - 1/6);
+    const ANGLE_4 = 0;
+    const ANGLE_5 = -Math.PI / 6 + morph * Math.PI * (-1/4 + 1/6);
+    const ANGLE_6 = -Math.PI / 3 + morph * Math.PI * (-1/4 + 1/3);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // const e1 = new Edge(() => EDGE_LENGTH, () => Math.PI / 2);
-    // const e02 = new Edge(() => EDGE_LENGTH, () => Math.PI / 4);
-    // const e03 = new Edge(() => EDGE_LENGTH, () => Math.PI / 4);
-    // const e04 = new Edge(() => EDGE_LENGTH, () => 0);
-    // const e05 = new Edge(() => EDGE_LENGTH, () => -Math.PI / 4);
-    // const e06 = new Edge(() => EDGE_LENGTH, () => -Math.PI / 4);
-    const e01 = new Edge(() => zValue * EDGE_LENGTH, () => ANGLE_1);
-    const e02 = new Edge(() => xValue * EDGE_LENGTH, () => ANGLE_2 + angle);
-    const e03 = new Edge(() => yValue * EDGE_LENGTH, () => ANGLE_3);
-    const e04 = new Edge(() => zValue * EDGE_LENGTH, () => ANGLE_4+ angle);
-    const e05 = new Edge(() => xValue * EDGE_LENGTH, () => ANGLE_5);
-    const e06 = new Edge(() => yValue * EDGE_LENGTH, () => ANGLE_6 + angle);
-    const e07 = new Edge(() => zValue * EDGE_LENGTH, () => Math.PI + ANGLE_1);
-    const e08 = new Edge(() => xValue * EDGE_LENGTH, () => Math.PI + ANGLE_2 + angle);
-    const e09 = new Edge(() => yValue * EDGE_LENGTH, () => Math.PI + ANGLE_3);
-    const e10 = new Edge(() => zValue * EDGE_LENGTH, () => Math.PI + ANGLE_4 + angle);
-    const e11 = new Edge(() => xValue * EDGE_LENGTH, () => Math.PI + ANGLE_5);
-    const e12 = new Edge(() => yValue * EDGE_LENGTH, () => Math.PI + ANGLE_6 + angle);
-    
+    // const e1 = new Edge(EDGE_LENGTH, Math.PI / 2);
+    // const e02 = new Edge(EDGE_LENGTH, Math.PI / 4);
+    // const e03 = new Edge(EDGE_LENGTH, Math.PI / 4);
+    // const e04 = new Edge(EDGE_LENGTH, 0);
+    // const e05 = new Edge(EDGE_LENGTH, -Math.PI / 4);
+    // const e06 = new Edge(EDGE_LENGTH, -Math.PI / 4);
+    const e01 = new Edge(zValue * EDGE_LENGTH, ANGLE_1);
+    const e02 = new Edge(xValue * EDGE_LENGTH, ANGLE_2 + angle);
+    const e03 = new Edge(yValue * EDGE_LENGTH, ANGLE_3);
+    const e04 = new Edge(zValue * EDGE_LENGTH, ANGLE_4 + angle);
+    const e05 = new Edge(xValue * EDGE_LENGTH, ANGLE_5);
+    const e06 = new Edge(yValue * EDGE_LENGTH, ANGLE_6 + angle);
+    const e07 = new Edge(zValue * EDGE_LENGTH, Math.PI + ANGLE_1);
+    const e08 = new Edge(xValue * EDGE_LENGTH, Math.PI + ANGLE_2 + angle);
+    const e09 = new Edge(yValue * EDGE_LENGTH, Math.PI + ANGLE_3);
+    const e10 = new Edge(zValue * EDGE_LENGTH, Math.PI + ANGLE_4 + angle);
+    const e11 = new Edge(xValue * EDGE_LENGTH, Math.PI + ANGLE_5);
+    const e12 = new Edge(yValue * EDGE_LENGTH, Math.PI + ANGLE_6 + angle);
+
     const controlPoint = new ControlPoint();
     const endPointX = new EndPoint("X");
     const endPointY = new EndPoint("Y");
@@ -135,12 +133,10 @@ function drawTiling(ctx, angle, xValue, yValue, zValue) {
         e08.markHole(),
         e05,
         e10,
-
         e11,
         e05.inwards(),
         e07.markHole(),
         e04,
-
         e09,
         e10,
         controlPoint,
@@ -271,8 +267,9 @@ function drawTiling(ctx, angle, xValue, yValue, zValue) {
     ).joinPoints(
         S1y.joinPoints(TC1.opposite(), endPointY, endPointX.opposite()),
         tipY.opposite());
-    // TA1.draw(ctx, () => angle);
+
     TA1.draw(ctx, angle);
+    // I0x.draw(ctx, angle, morph);
 }
 
 function conwayS(sa, ia, sb, ib, e, o) {
