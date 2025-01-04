@@ -1,7 +1,7 @@
 
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const DRAW_POINTS = true;
+const DRAW_POINTS = false;
 
 class Tile {
     constructor(edges) {
@@ -53,13 +53,13 @@ class Tile {
             if (!(this.edges[i] instanceof Edge)) {
                 continue;
             }
-            ctx.lineTo(re + this.edges[i].midRe(angle), im + this.edges[i].midIm(angle));
+            // ctx.lineTo(re + this.edges[i].midRe(angle), im + this.edges[i].midIm(angle));
             re += this.edges[i].re;
             im += this.edges[i].im;
-            if (!this.edges[i].surroundsHole) {
+            // if (!this.edges[i].surroundsHole) {
                 // Skip this line to prevent the tile having an ugly internal line.
                 ctx.lineTo(re, im);
-            }
+            // }
         }
         ctx.closePath();
         ctx.fill();

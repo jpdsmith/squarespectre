@@ -23,20 +23,12 @@ class Edge {
         return new Edge(this.lengthFn, this.angleFn, this.direction, this.parity, true);
     }
 
-    plus(angleFn) {
-        return new Edge(this.lengthFn, () => this.angleFn() + angleFn(), this.direction, this.parity, this.surroundsHole);
-    }
-
-    times(factor) {
-        return new Edge(() => this.lengthFn() * factor(), this.angleFn, this.direction, this.parity, this.surroundsHole);
-    }
-
     get re() {
         return this.lengthFn() * Math.cos(this.angleFn());
     }
 
     midRe(angle) {
-        const theta = this.parity == 1 ? this.direction*(angle()/2+Math.PI/6) : this.direction*(-1*angle()/2+Math.PI/3);
+        const theta = this.parity == 1 ? this.direction*(angle()/2+Math.PI/4) : this.direction*(-1*angle()/2+Math.PI/4);
         return this.lengthFn() * Math.cos(theta)* Math.cos(theta + this.angleFn());
     }
 
@@ -45,7 +37,7 @@ class Edge {
     }
 
     midIm(angle) {
-        const theta = this.parity == 1 ? this.direction*(angle()/2+Math.PI/6) : this.direction*(-1*angle()/2+Math.PI/3);
+        const theta = this.parity == 1 ? this.direction*(angle()/2+Math.PI/4) : this.direction*(-1*angle()/2+Math.PI/4);
         return this.lengthFn() * Math.cos(theta) * Math.sin(theta + this.angleFn());
     }
 

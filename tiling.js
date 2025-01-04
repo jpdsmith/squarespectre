@@ -3,19 +3,37 @@ import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
 const EDGE_LENGTH = 25;
+const ANGLE_1 =  Math.PI / 2;
+const ANGLE_2 = Math.PI / 3;
+const ANGLE_3 = Math.PI / 6;
+const ANGLE_4 = 0;
+const ANGLE_5 = -Math.PI / 6;
+const ANGLE_6 = -Math.PI / 3;
 
-function drawTiling(ctx, angleValue, xValue, yValue, zValue) {
-    const angle = () => angleValue;
+function drawTiling(ctx, angle, xValue, yValue, zValue) {
     const xFactor = () => xValue;
     const yFactor = () => yValue;
     const zFactor = () => zValue;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const e1 = new Edge(() => EDGE_LENGTH, () => Math.PI / 2);
-    const e2 = new Edge(() => EDGE_LENGTH, () => Math.PI / 6);
-    const e3 = new Edge(() => EDGE_LENGTH, () => -Math.PI / 6);
-    const e4 = e1.opposite();
-    const e5 = e2.opposite()
-    const e6 = e3.opposite();
+    // const e1 = new Edge(() => EDGE_LENGTH, () => Math.PI / 2);
+    // const e02 = new Edge(() => EDGE_LENGTH, () => Math.PI / 4);
+    // const e03 = new Edge(() => EDGE_LENGTH, () => Math.PI / 4);
+    // const e04 = new Edge(() => EDGE_LENGTH, () => 0);
+    // const e05 = new Edge(() => EDGE_LENGTH, () => -Math.PI / 4);
+    // const e06 = new Edge(() => EDGE_LENGTH, () => -Math.PI / 4);
+    const e01 = new Edge(() => zValue * EDGE_LENGTH, () => ANGLE_1);
+    const e02 = new Edge(() => xValue * EDGE_LENGTH, () => ANGLE_2 + angle);
+    const e03 = new Edge(() => yValue * EDGE_LENGTH, () => ANGLE_3);
+    const e04 = new Edge(() => zValue * EDGE_LENGTH, () => ANGLE_4+ angle);
+    const e05 = new Edge(() => xValue * EDGE_LENGTH, () => ANGLE_5);
+    const e06 = new Edge(() => yValue * EDGE_LENGTH, () => ANGLE_6 + angle);
+    const e07 = new Edge(() => zValue * EDGE_LENGTH, () => Math.PI + ANGLE_1);
+    const e08 = new Edge(() => xValue * EDGE_LENGTH, () => Math.PI + ANGLE_2 + angle);
+    const e09 = new Edge(() => yValue * EDGE_LENGTH, () => Math.PI + ANGLE_3);
+    const e10 = new Edge(() => zValue * EDGE_LENGTH, () => Math.PI + ANGLE_4 + angle);
+    const e11 = new Edge(() => xValue * EDGE_LENGTH, () => Math.PI + ANGLE_5);
+    const e12 = new Edge(() => yValue * EDGE_LENGTH, () => Math.PI + ANGLE_6 + angle);
+    
     const controlPoint = new ControlPoint();
     const endPointX = new EndPoint("X");
     const endPointY = new EndPoint("Y");
@@ -26,67 +44,167 @@ function drawTiling(ctx, angleValue, xValue, yValue, zValue) {
 
     const S0x = new Tile([controlPoint]);
     const I0x = new Tile([
-        e2.times(yFactor).markHole(), e1.plus(angle).times(yFactor), tipX, e3.times(xFactor), e4.plus(angle).times(yFactor),
+        e03.markHole(),
+        e12,
+        tipX,
+        e05,
+        e06,
         controlPoint,
-        e4.times(zFactor), e5.inwards().times(yFactor), endPointX, e6.times(xFactor), e1.inwards().times(zFactor)]).withAlternatingEdges();
+        e07,
+        e09.inwards(),
+        endPointX,
+        e11,
+        e01.inwards()]).withAlternatingEdges();
     const N0x = I0x;
     const M0x = new Tile([controlPoint]);
     const S0y = new Tile([controlPoint]);
     const I0y = new Tile([
-        e3.times(xFactor).markHole(), e2.plus(angle).times(xFactor), tipY, e4.times(zFactor), e5.plus(angle).times(xFactor),
+        e05.markHole(),
+        e02,
+        tipY,
+        e07,
+        e08,
         controlPoint,
-        e5.times(yFactor), e6.inwards().times(xFactor), endPointY, e1.times(zFactor), e2.inwards().times(yFactor)]).withAlternatingEdges();
+        e09,
+        e11.inwards(),
+        endPointY,
+        e01,
+        e03.inwards()]).withAlternatingEdges();
+
     const N0y = I0y;
     const M0y = new Tile([controlPoint]);
     const S0z = new Tile([controlPoint]);
     const I0z = new Tile([
-        e4.times(zFactor).markHole(), e3.plus(angle).times(zFactor), tipZ, e5.times(yFactor), e6.plus(angle).times(zFactor),
+        e07.markHole(),
+        e04,
+        tipZ,
+        e09,
+        e10,
         controlPoint,
-        e6.times(xFactor), e1.inwards().times(zFactor), endPointZ, e2.times(yFactor), e3.inwards().times(xFactor)]).withAlternatingEdges();
+        e11,
+        e01.inwards(),
+        endPointZ,
+        e03,
+        e05.inwards()]).withAlternatingEdges();
     const N0z = I0z;
     const M0z = new Tile([controlPoint]);
 
     const Ex = new Tile([
-        e1.plus(angle).inwards().times(yFactor), e2.plus(angle).times(xFactor), e3.plus(angle).inwards().times(zFactor), e4.plus(angle).times(yFactor).markHole(),
-        e2.times(yFactor), e5.plus(angle).times(xFactor),
-        e3.times(xFactor).markHole(), e2.plus(angle).times(xFactor), e4.times(zFactor), e5.plus(angle).times(xFactor),
+        e12.inwards(),
+        e02,
+        e04.inwards(),
+        e06.markHole(),
+        e03,
+        e08,
+        e09,
+        e03.inwards(),
+        e05.markHole(),
+        e02,
+        e07,
+        e08,
         controlPoint,
-        e5.times(yFactor), e6.inwards().times(xFactor), e1.times(zFactor), e2.inwards().times(yFactor), e5.times(yFactor),
-        e6.plus(angle).times(zFactor)]).withAlternatingEdges();
+        e09,
+        e11.inwards(),
+
+        e01,
+        e10]).withAlternatingEdges();
     const Ox = new Tile([
-        e3.times(xFactor).markHole(), e2.plus(angle).times(xFactor), e4.times(zFactor), e5.plus(angle).times(xFactor),
-        e2.plus(angle).inwards().times(xFactor), e3.plus(angle).times(zFactor).markHole(),
-        e1.times(zFactor), e4.plus(angle).times(yFactor), controlPoint, e4.times(zFactor),
-        e5.plus(angle).times(xFactor), e6.plus(angle).inwards().times(zFactor), e1.plus(angle).times(yFactor),
-        e5.times(yFactor), e6.inwards().times(xFactor), e1.times(zFactor), e2.inwards().times(yFactor)]).withAlternatingEdges();
+        e05.markHole(),
+        e02,
+        e07,
+        e08,
+        e02.inwards(),
+        e04.markHole(),
+        e01,
+        e06,
+        controlPoint,
+        e07,
+        e08,
+        e10.inwards(),
+        e12,
+        e09,
+        e11.inwards(),
+        e01,
+        e03.inwards()
+    ]).withAlternatingEdges();
 
     const Ey = new Tile([
-        e2.plus(angle).inwards().times(xFactor), e3.plus(angle).times(zFactor), e4.plus(angle).inwards().times(yFactor), e5.plus(angle).times(xFactor).markHole(),
-        e3.times(xFactor), e6.plus(angle).times(zFactor),
-        e4.times(zFactor).markHole(), e3.plus(angle).times(zFactor), e5.times(yFactor), e6.plus(angle).times(zFactor),
+        e02.inwards(),
+        e04,
+        e06.inwards(),
+        e08.markHole(),
+        e05,
+        e10,
+
+        e11,
+        e05.inwards(),
+        e07.markHole(),
+        e04,
+
+        e09,
+        e10,
         controlPoint,
-        e6.times(xFactor), e1.inwards().times(zFactor), e2.times(yFactor), e3.inwards().times(xFactor), e6.times(xFactor),
-        e1.plus(angle).times(yFactor)]).withAlternatingEdges();
+        e11,
+        e01.inwards(),
+        e03,
+        e12]).withAlternatingEdges();
     const Oy = new Tile([
-        e4.times(zFactor).markHole(), e3.plus(angle).times(zFactor), e5.times(yFactor), e6.plus(angle).times(zFactor),
-        e3.plus(angle).inwards().times(zFactor), e4.plus(angle).times(yFactor).markHole(),
-        e2.times(yFactor), e5.plus(angle).times(xFactor), controlPoint, e5.times(yFactor),
-        e6.plus(angle).times(zFactor), e1.plus(angle).inwards().times(yFactor), e2.plus(angle).times(xFactor),
-        e6.times(xFactor), e1.inwards().times(zFactor), e2.times(yFactor), e3.inwards().times(xFactor)]).withAlternatingEdges();
+        e07.markHole(),
+        e04,
+        e09,
+        e10,
+        e04.inwards(),
+        e06.markHole(),
+        e03,
+        e08,
+        controlPoint,
+        e09,
+        e10,
+        e12.inwards(),
+        e02,
+        e11,
+        e01.inwards(),
+        e03,
+        e05.inwards()
+    ]).withAlternatingEdges();
 
     const Ez = new Tile([
-        e6.plus(angle).inwards().times(zFactor), e1.plus(angle).times(yFactor), e2.plus(angle).inwards().times(xFactor), e3.plus(angle).times(zFactor).markHole(),
-        e1.times(zFactor), e4.plus(angle).times(yFactor),
-        e2.times(yFactor).markHole(), e1.plus(angle).times(yFactor), e3.times(xFactor), e4.plus(angle).times(yFactor),
+        e10.inwards(),
+        e12,
+        e02.inwards(),
+        e04.markHole(),
+        e01,
+        e06,
+        e03.markHole(),
+        e12,
+        e05,
+        e06,
         controlPoint,
-        e4.times(zFactor), e5.inwards().times(yFactor), e6.times(xFactor), e1.inwards().times(zFactor), e4.times(zFactor),
-        e5.plus(angle).times(xFactor)]).withAlternatingEdges();
+        e07,
+        e09.inwards(),
+        e11,
+        e01.inwards(),
+        e07,
+        e08]).withAlternatingEdges();
     const Oz = new Tile([
-        e2.times(yFactor).markHole(), e1.plus(angle).times(yFactor), e3.times(xFactor), e4.plus(angle).times(yFactor),
-        e1.plus(angle).inwards().times(yFactor), e2.plus(angle).times(xFactor).markHole(),
-        e6.times(xFactor), e3.plus(angle).times(zFactor), controlPoint, e3.times(xFactor),
-        e4.plus(angle).times(yFactor), e5.plus(angle).inwards().times(xFactor), e6.plus(angle).times(zFactor),
-        e4.times(zFactor), e5.inwards().times(yFactor), e6.times(xFactor), e1.inwards().times(zFactor)]).withAlternatingEdges();
+        e03.markHole(),
+        e12,
+        e05,
+        e06,
+        e12.inwards(),
+        e02.markHole(),
+        e11,
+        e04,
+        controlPoint,
+        e05,
+        e06,
+        e08.inwards(),
+        e10,
+        e07,
+        e09.inwards(),
+        e11,
+        e01.inwards()
+    ]).withAlternatingEdges();
 
     const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
     const I1x = conwayI(S0x, I0x, Ex, Ox);
@@ -153,8 +271,8 @@ function drawTiling(ctx, angleValue, xValue, yValue, zValue) {
     ).joinPoints(
         S1y.joinPoints(TC1.opposite(), endPointY, endPointX.opposite()),
         tipY.opposite());
+    // TA1.draw(ctx, () => angle);
     TA1.draw(ctx, angle);
-    // Oz.draw(ctx, angle);
 }
 
 function conwayS(sa, ia, sb, ib, e, o) {
