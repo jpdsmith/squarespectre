@@ -157,6 +157,11 @@ class Tile {
         return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(joinFromOffset));
     }
 
+    setColor(color) {
+        this.joinedTiles.forEach((val) => {val.color = color});
+
+    }
+
 }
 
 export default Tile;
