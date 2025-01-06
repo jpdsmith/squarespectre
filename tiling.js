@@ -2,7 +2,14 @@
 import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const EDGE_LENGTH = 10;
+const EDGE_LENGTH = 2;
+
+const endPointX = new EndPoint("X");
+const endPointY = new EndPoint("Y");
+const endPointZ = new EndPoint("Z");
+const tipX = new TipPoint("X");
+const tipY = new TipPoint("Y");
+const tipZ = new TipPoint("Z");
 
 
 function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
@@ -13,12 +20,6 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
     const ANGLE_5 = -Math.PI / 6 + morph * Math.PI * (-1 / 4 + 1 / 6);
     const ANGLE_6 = -Math.PI / 3 + morph * Math.PI * (-1 / 4 + 1 / 3);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // const e1 = new Edge(EDGE_LENGTH, Math.PI / 2);
-    // const e02 = new Edge(EDGE_LENGTH, Math.PI / 4);
-    // const e03 = new Edge(EDGE_LENGTH, Math.PI / 4);
-    // const e04 = new Edge(EDGE_LENGTH, 0);
-    // const e05 = new Edge(EDGE_LENGTH, -Math.PI / 4);
-    // const e06 = new Edge(EDGE_LENGTH, -Math.PI / 4);
     const e01 = new Edge(zValue * EDGE_LENGTH, ANGLE_1);
     const e02 = new Edge(xValue * EDGE_LENGTH, ANGLE_2 + angle);
     const e03 = new Edge(yValue * EDGE_LENGTH, ANGLE_3);
@@ -33,17 +34,6 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
     const e12 = new Edge(yValue * EDGE_LENGTH, Math.PI + ANGLE_6 + angle);
 
     const controlPoint = new ControlPoint();
-    const endPointX = new EndPoint("X");
-    const endPointY = new EndPoint("Y");
-    const endPointZ = new EndPoint("Z");
-    const endPoints = [endPointX, endPointY, endPointZ, endPointX.opposite(), endPointY.opposite(), endPointZ.opposite()];
-    const tipX = new TipPoint("X");
-    const tipY = new TipPoint("Y");
-    const tipZ = new TipPoint("Z");
-    const tips = [tipX, tipY, tipZ, tipX.opposite(), tipY.opposite(), tipZ.opposite()];
-    const all = [tipX, tipY, tipZ, tipX.opposite(), tipY.opposite(), tipZ.opposite(),
-        endPointX, endPointY, endPointZ, endPointX.opposite(), endPointY.opposite(), endPointZ.opposite()
-    ];
 
     const S0x = Tile.empty();
     const I0x = Tile.withAlternatingEdges([
@@ -110,7 +100,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
 
         e01,
-        e10], "#ff0");
+        e10], "#00f");
     const Ox = Tile.withAlternatingEdges([
         e05.markHole(),
         e02,
@@ -129,7 +119,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
         e01,
         e03.inwards()
-    ], "#ff0");
+    ], "#0ff");
 
     const Ey = Tile.withAlternatingEdges([
         e02.inwards(),
@@ -148,7 +138,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11,
         e01.inwards(),
         e03,
-        e12], "#ff0");
+        e12], "#0f0");
     const Oy = Tile.withAlternatingEdges([
         e07.markHole(),
         e04,
@@ -186,7 +176,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11,
         e01.inwards(),
         e07,
-        e08], "#ff0");
+        e08], "#f00");
     const Oz = Tile.withAlternatingEdges([
         e03.markHole(),
         e12,
@@ -205,7 +195,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e09.inwards(),
         e11,
         e01.inwards()
-    ], "#ff0");
+    ], "#f0f");
 
     const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
     const I1x = conwayI(S0x, I0x, Ex, Ox);
@@ -240,6 +230,10 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
     const S3x = conwayS(S2x, I2z, S2y, I2x, Ex, Ox);
     const M3z = conwayM(S2z, I2y.opposite(), M2z);
 
+    const N3x = conwayN(S2x, I2z);
+    const N3y = conwayN(S2y, I2x);
+    const N3z = conwayN(S2z, I2y.opposite());
+
     const TD1 = I0x
         .joinPoints(I0z, endPointX, null, tipX, [tipZ, endPointZ])
         .joinPoints(I0y.opposite(), endPointZ, null, [tipX, tipZ], tipY.opposite());
@@ -247,86 +241,23 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
     const PA1y = I0y.joinPoints(I0y.opposite(), tipY, null, endPointY, endPointY.opposite());
     const PA1z = I0z.joinPoints(I0z.opposite(), tipZ, null, endPointZ, endPointZ.opposite());
 
-    const tempMPx = M1x.opposite()
-        .joinPoints(PA1z.opposite(), endPointX.opposite(), endPointZ.opposite(), null, [endPointZ, endPointZ.opposite()]);
-    const tempMPy = M1y.joinPoints(PA1x.opposite(), endPointY, endPointX.opposite(), null, [endPointX, endPointX.opposite()]);
-    const tempMPz = M1z.joinPoints(PA1y, endPointZ.opposite(), endPointY, null, [endPointY, endPointY.opposite()]);
-    const TC1 = TD1.joinPoints(tempMPy, tipY.opposite(), null, [tipX, tipZ], [endPointX])
-        .joinPoints(tempMPx, tipX, null, [endPointX, tipZ], [endPointZ])
-        .joinPoints(tempMPz, tipZ, null, [endPointX, endPointZ], [endPointY.opposite()]);
+    const TA0 = Tile.withAlternatingEdges([endPointX.opposite(), endPointY, endPointZ.opposite()]);
 
-    const tempPartY = TD1.joinPoints(tempMPy, tipY.opposite(), null, [tipX, tipZ], [endPointX])
-        .joinPoints(M1x.opposite(), tipX, null, [endPointX, tipZ], [endPointX.opposite()]);
-    const tempPartX = TD1.joinPoints(tempMPx, tipX, null, [tipZ, tipY.opposite()], endPointZ)
-        .joinPoints(M1z, tipZ, null, [endPointZ, tipY.opposite()], [endPointZ.opposite()]);
-    const tempPartZ = TD1.joinPoints(tempMPz, tipZ, null, [tipX, tipY.opposite()], endPointY.opposite())
-        .joinPoints(M1y, tipY.opposite(), null, [tipX, endPointY.opposite()], [endPointY]);
-    const TA0 = Tile.withAlternatingEdges([endPointX.opposite(), endPointY, endPointZ]);
-    const temp = TA0.joinPoints(tempPartY, endPointZ, endPointX.opposite(), [endPointX, endPointY, endPointZ, endPointX.opposite()], [endPointX, tipZ]);
+    const TC1 = smallPropeller(PA1x, PA1y, PA1z, TD1, M1x, M1y, M1z);
+    const TB1 = largePropeller(PA1x, PA1y, PA1z, TA0, TD1, M1x, M1y, M1z);
 
-    const TB1 = temp.joinPoints(tempPartX, endPointY, endPointZ.opposite(), [tipZ, endPointX, endPointZ, endPointX.opposite(), tipY.opposite()], [tipY.opposite(), endPointZ])
-        .joinPoints(tempPartZ, endPointX.opposite(), endPointY, [tipY.opposite(), tipZ, endPointX, endPointZ], [tipY.opposite(), tipX, endPointY.opposite()]);
-    TB1.setColor("teal");
-
-    const TA1 = TB1.joinPoints(
-        S1z.joinPoints(
-            TC1.opposite(), endPointZ.opposite(), endPointY, [tipX, tipY.opposite()], [endPointZ.opposite()]),
-        tipZ, null, [tipX, tipY.opposite()], [endPointZ.opposite()])
-        .joinPoints(
-            S1x.opposite().joinPoints(
-                TC1.opposite(), endPointX.opposite(), endPointZ.opposite(), [tipY.opposite()], [endPointX.opposite()]),
-            tipX, null, [tipY.opposite(), endPointZ.opposite()], [endPointX.opposite()])
-        .joinPoints(
-            S1y.joinPoints(
-                TC1.opposite(), endPointY, endPointX.opposite(), [], [endPointY]),
-            tipY.opposite(), null, [endPointZ.opposite(), endPointX.opposite()], [endPointY]);
-
-    const topHalfX = TB1
-        .joinPoints(S1z, tipZ, null, [endPointZ, tipY.opposite(), tipX, tipX.opposite()], [endPointZ.opposite()])
-        .joinPoints(S1y, tipY.opposite(), null, [endPointZ.opposite(), tipX, tipX.opposite()], [endPointY])
-        .joinPoints(TC1.opposite(), endPointZ.opposite(), endPointY, [endPointY, tipX], []);
-    const bottomHalfX = topHalfX.opposite();
-
-    const PB1x = PA1x
-        .joinPoints(bottomHalfX, endPointX, endPointY.opposite(), [endPointX.opposite()], [tipX.opposite()])
-        .joinPoints(topHalfX, endPointX.opposite(), endPointY, [tipX.opposite()], [tipX]);
-
-    const topHalfY = TB1
-        .joinPoints(S1x.opposite(), tipX, null, [endPointX, tipZ, tipY.opposite()], [endPointX.opposite()])
-        .joinPoints(S1z, tipZ, null, [endPointX.opposite(), tipY.opposite()], [endPointZ.opposite()])
-        .joinPoints(TC1.opposite(), endPointX.opposite(), endPointZ.opposite(), [endPointZ.opposite(), tipY.opposite()], []);
-    const bottomHalfY = topHalfY.opposite();
-
-    const PB1y = PA1y
-        .joinPoints(bottomHalfY, endPointY.opposite(), endPointZ, [endPointY], [tipY])
-        .joinPoints(topHalfY, endPointY, endPointZ.opposite(), [tipY], [tipY.opposite()]);
-
-    const topHalfZ = TB1
-        .joinPoints(S1y, tipY.opposite(), null, [endPointY.opposite(), tipX, tipZ], [endPointY])
-        .joinPoints(S1x.opposite(), tipX, null, [endPointY, tipZ], [endPointX.opposite()])
-        .joinPoints(TC1.opposite(), endPointY, endPointX.opposite(), [endPointX.opposite(), tipZ], []);
-    const bottomHalfZ = topHalfZ.opposite();
-
-    const PB1z = PA1z
-        .joinPoints(bottomHalfZ, endPointZ, endPointX, [endPointZ.opposite()], [tipZ.opposite()])
-        .joinPoints(topHalfZ, endPointZ.opposite(), endPointX.opposite(), [tipZ.opposite()], [tipZ]);
+    const TA1 = bird(TB1, TC1, S1x, S1y, S1z);
+    const PB1x = penguinX(TB1, TC1, PA1x, S1y, S1z);
+    const PB1y = penguinY(TB1, TC1, PA1y, S1x, S1z);
+    const PB1z = penguinZ(TB1, TC1, PA1z, S1x, S1y);
 
     //PB1x.setColor("red");
-    PB1y.setColor("green");
-    PB1z.setColor("blue");
+    // PB1y.setColor("green");
+    // PB1z.setColor("blue");
 
-    N2x.setColor("pink");
+    // N2x.setColor("pink");
 
-    const TD2 = TC1
-        .joinPoints(
-            PB1x.joinPoints(N2x, tipX.opposite(), null, [tipX], [endPointX]),
-            endPointZ, endPointX, [endPointX, endPointY.opposite()])
-        .joinPoints(
-            PB1y.joinPoints(N2y.opposite(), tipY, null, [tipY.opposite()], [endPointY.opposite()]),
-            endPointX, endPointY.opposite(), [endPointY.opposite()])
-        .joinPoints(
-            PB1z.joinPoints(N2z.opposite(), tipZ.opposite(), null, [tipZ], [endPointZ]),
-            endPointY.opposite(), endPointZ, [endPointX]);
+    const TD2 = rose(TC1, PB1x, PB1y, PB1z, N2x, N2y, N2z);
 
     const PA2x = PB1x.joinPoints(N2x, tipX.opposite(), null, [tipX], [endPointX])
         .joinPoints(TA1.opposite(), endPointX, endPointZ, [tipX], [endPointX])
@@ -343,7 +274,18 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         .joinPoints(N2z.opposite(), tipZ.opposite(), null, [endPointZ.opposite()], [endPointZ])
         .joinPoints(TA1.opposite(), endPointZ, endPointY.opposite(), [endPointZ.opposite()], [endPointZ])
 
-    PA2z.draw(ctx, angle, morph);
+    const TC2 = smallPropeller(PA2x, PA2y, PA2z, TD2, M2x, M2y, M2z);
+    const TB2 = largePropeller(PA2x, PA2y, PA2z, TA1, TD2, M2x, M2y, M2z);
+    const TA2 = bird(TB2, TC2, S2x, S2y, S2z);
+
+
+    const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
+    const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
+    const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
+
+    const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
+
+    TD3.draw(ctx, angle, morph);
 }
 
 function conwayS(sa, ia, sb, ib, e, o) {
@@ -363,6 +305,98 @@ function conwayN(s, i) {
 }
 function conwayM(s, i, m) {
     return s.join(i).join(s).join(i).join(m);
+}
+
+function smallPropeller(px, py, pz, td, mx, my, mz) {
+    const tempMPx = mx.opposite()
+        .joinPoints(pz.opposite(), endPointX.opposite(), endPointZ.opposite(), null, [endPointZ, endPointZ.opposite()]);
+    const tempMPy = my.joinPoints(px.opposite(), endPointY, endPointX.opposite(), null, [endPointX, endPointX.opposite()]);
+    const tempMPz = mz.joinPoints(py, endPointZ.opposite(), endPointY, null, [endPointY, endPointY.opposite()]);
+    return td.joinPoints(tempMPy, tipY.opposite(), null, [tipX, tipZ], [endPointX])
+        .joinPoints(tempMPx, tipX, null, [endPointX, tipZ], [endPointZ])
+        .joinPoints(tempMPz, tipZ, null, [endPointX, endPointZ], [endPointY.opposite()]);
+
+}
+
+function largePropeller(px, py, pz, ta, td, mx, my, mz) {
+    const tempMPx = mx.opposite()
+        .joinPoints(pz.opposite(), endPointX.opposite(), endPointZ.opposite(), null, [endPointZ, endPointZ.opposite()]);
+    const tempMPy = my.joinPoints(px.opposite(), endPointY, endPointX.opposite(), null, [endPointX, endPointX.opposite()]);
+    const tempMPz = mz.joinPoints(py, endPointZ.opposite(), endPointY, null, [endPointY, endPointY.opposite()]);
+    const tempPartY = td.joinPoints(tempMPy, tipY.opposite(), null, [tipX, tipZ], [endPointX])
+        .joinPoints(mx.opposite(), tipX, null, [endPointX, tipZ], [endPointX.opposite()]);
+    const tempPartX = td.joinPoints(tempMPx, tipX, null, [tipZ, tipY.opposite()], endPointZ)
+        .joinPoints(mz, tipZ, null, [endPointZ, tipY.opposite()], [endPointZ.opposite()]);
+    const tempPartZ = td.joinPoints(tempMPz, tipZ, null, [tipX, tipY.opposite()], endPointY.opposite())
+        .joinPoints(my, tipY.opposite(), null, [tipX, endPointY.opposite()], [endPointY]);
+    const temp = ta.joinPoints(tempPartY, endPointZ.opposite(), endPointX.opposite(), [endPointX.opposite(), endPointY], [tipZ]);
+
+    return temp.joinPoints(tempPartX, endPointY, endPointZ.opposite(), [endPointX.opposite(), tipZ], [tipY.opposite()])
+        .joinPoints(tempPartZ, endPointX.opposite(), endPointY, [tipY.opposite(), tipZ], [tipX]);
+}
+
+function bird(tb, tc, sx, sy, sz) {
+    return tb.joinPoints(
+        sz.joinPoints(
+            tc.opposite(), endPointZ.opposite(), endPointY, [tipX, tipY.opposite()], [endPointZ.opposite()]),
+        tipZ, null, [tipX, tipY.opposite()], [endPointZ.opposite()])
+        .joinPoints(
+            sx.opposite().joinPoints(
+                tc.opposite(), endPointX.opposite(), endPointZ.opposite(), [tipY.opposite()], [endPointX.opposite()]),
+            tipX, null, [tipY.opposite(), endPointZ.opposite()], [endPointX.opposite()])
+        .joinPoints(
+            sy.joinPoints(
+                tc.opposite(), endPointY, endPointX.opposite(), [], [endPointY]),
+            tipY.opposite(), null, [endPointZ.opposite(), endPointX.opposite()], [endPointY]);
+}
+
+function penguinX(tb, tc, pax, sy, sz) {
+    const topHalfX = tb
+        .joinPoints(sz, tipZ, null, [endPointZ, tipY.opposite(), tipX, tipX.opposite()], [endPointZ.opposite()])
+        .joinPoints(sy, tipY.opposite(), null, [endPointZ.opposite(), tipX, tipX.opposite()], [endPointY])
+        .joinPoints(tc.opposite(), endPointZ.opposite(), endPointY, [endPointY, tipX], []);
+    const bottomHalfX = topHalfX.opposite();
+
+    return pax
+        .joinPoints(bottomHalfX, endPointX, endPointY.opposite(), [endPointX.opposite()], [tipX.opposite()])
+        .joinPoints(topHalfX, endPointX.opposite(), endPointY, [tipX.opposite()], [tipX]);
+}
+
+function penguinY(tb, tc, pay, sx, sz) {
+    const topHalfY = tb
+        .joinPoints(sx.opposite(), tipX, null, [endPointX, tipZ, tipY.opposite()], [endPointX.opposite()])
+        .joinPoints(sz, tipZ, null, [endPointX.opposite(), tipY.opposite()], [endPointZ.opposite()])
+        .joinPoints(tc.opposite(), endPointX.opposite(), endPointZ.opposite(), [endPointZ.opposite(), tipY.opposite()], []);
+    const bottomHalfY = topHalfY.opposite();
+
+    return pay
+        .joinPoints(bottomHalfY, endPointY.opposite(), endPointZ, [endPointY], [tipY])
+        .joinPoints(topHalfY, endPointY, endPointZ.opposite(), [tipY], [tipY.opposite()]);
+}
+
+function penguinZ(tb, tc, paz, sx, sy) {
+    const topHalfZ = tb
+        .joinPoints(sy, tipY.opposite(), null, [endPointY.opposite(), tipX, tipZ], [endPointY])
+        .joinPoints(sx.opposite(), tipX, null, [endPointY, tipZ], [endPointX.opposite()])
+        .joinPoints(tc.opposite(), endPointY, endPointX.opposite(), [endPointX.opposite(), tipZ], []);
+    const bottomHalfZ = topHalfZ.opposite();
+
+    return paz
+        .joinPoints(bottomHalfZ, endPointZ, endPointX, [endPointZ.opposite()], [tipZ.opposite()])
+        .joinPoints(topHalfZ, endPointZ.opposite(), endPointX.opposite(), [tipZ.opposite()], [tipZ]);
+}
+
+function rose(tc, pbx, pby, pbz, nx, ny, nz) {
+    return tc
+        .joinPoints(
+            pbx.joinPoints(nx, tipX.opposite(), null, [tipX], [endPointX]),
+            endPointZ, endPointX, [endPointX, endPointY.opposite()], [tipX])
+        .joinPoints(
+            pby.joinPoints(ny.opposite(), tipY, null, [tipY.opposite()], [endPointY.opposite()]),
+            endPointX, endPointY.opposite(), [endPointY.opposite(), tipX], [tipY.opposite()])
+        .joinPoints(
+            pbz.joinPoints(nz.opposite(), tipZ.opposite(), null, [tipZ], [endPointZ]),
+            endPointY.opposite(), endPointZ, [tipX, tipY.opposite()], [tipZ]);
 }
 
 export { drawTiling };

@@ -2,7 +2,7 @@
 import { Coord } from './coord.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const DRAW_POINTS = true;
+const DRAW_POINTS = false;
 
 class JoinedTile {
     constructor(edges, offset = new Coord(0, 0), color = "#fff") {
@@ -25,16 +25,16 @@ class JoinedTile {
         ctx.beginPath()
         ctx.fillStyle = this.color;
         for (let i = 0; i < this.edges.length; i++) {
-            //ctx.lineTo(coord.x + this.edges[i].midRe(angle), coord.y + this.edges[i].midIm(angle));
+            ctx.lineTo(coord.x + this.edges[i].midRe(angle), coord.y + this.edges[i].midIm(angle));
             coord = coord.plus(this.edges[i]);
-            //if (!this.edges[i].surroundsHole) {
-                // Skip this line to prevent the tile having an ugly internal line.
-                ctx.lineTo(coord.x, coord.y);
-           // }
+            if (!this.edges[i].surroundsHole) {
+            // Skip this line to prevent the tile having an ugly internal line.
+            ctx.lineTo(coord.x, coord.y);
+            }
         }
         ctx.closePath()
         ctx.fill();
-        ctx.stroke();
+        // ctx.stroke();
         ctx.moveTo(position.x, position.y);
     }
 }
@@ -158,7 +158,7 @@ class Tile {
     }
 
     setColor(color) {
-        this.joinedTiles.forEach((val) => {val.color = color});
+        this.joinedTiles.forEach((val) => { val.color = color; });
 
     }
 
