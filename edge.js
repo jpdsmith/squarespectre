@@ -23,21 +23,29 @@ class Edge {
         return new Edge(this.length, this.angle, this.direction, this.parity, true);
     }
 
+    get x() {
+        return this.length * Math.cos(this.angle);
+    }
+
     get re() {
         return this.length * Math.cos(this.angle);
     }
 
     midRe(angle) {
-        const theta = this.parity == 1 ? this.direction*(angle/2+Math.PI/4) : this.direction*(-1*angle/2+Math.PI/4);
-        return this.length * Math.cos(theta)* Math.cos(theta + this.angle);
+        const theta = this.parity == 1 ? this.direction * (angle / 2 + Math.PI / 4) : this.direction * (-1 * angle / 2 + Math.PI / 4);
+        return this.length * Math.cos(theta) * Math.cos(theta + this.angle);
     }
 
     get im() {
         return this.length * Math.sin(this.angle);
     }
 
+    get y() {
+        return this.length * Math.sin(this.angle);
+    }
+
     midIm(angle) {
-        const theta = this.parity == 1 ? this.direction*(angle/2+Math.PI/4) : this.direction*(-1*angle/2+Math.PI/4);
+        const theta = this.parity == 1 ? this.direction * (angle / 2 + Math.PI / 4) : this.direction * (-1 * angle / 2 + Math.PI / 4);
         return this.length * Math.cos(theta) * Math.sin(theta + this.angle);
     }
 
@@ -47,10 +55,14 @@ class ControlPoint {
     opposite() {
         return this;
     }
+
+    label() {
+        return "ctrl"
+    }
 }
 
 class EndPoint {
-    constructor(type){
+    constructor(type) {
         this.type = type;
         this.isOpposite = false;
         this.oppositeValue = null;
@@ -64,10 +76,15 @@ class EndPoint {
         }
         return this.oppositeValue;
     }
+
+    label() {
+        const opp = this.isOpposite ? "-" : "";
+        return opp + "end" + this.type;
+    }
 }
 
 class TipPoint {
-    constructor(type){
+    constructor(type) {
         this.type = type;
         this.isOpposite = false;
         this.oppositeValue = null;
@@ -80,6 +97,11 @@ class TipPoint {
             this.oppositeValue.oppositeValue = this;
         }
         return this.oppositeValue;
+    }
+
+    label() {
+        const opp = this.isOpposite ? "-" : "";
+        return opp + "tip" + this.type;
     }
 }
 

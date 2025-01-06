@@ -1,25 +1,13 @@
 
+import { Coord } from './coord.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const DRAW_POINTS = false;
+const DRAW_POINTS = true;
 
-class Tile {
-    constructor(edges) {
+class JoinedTile {
+    constructor(edges, offset = new Coord(0, 0)) {
         this.edges = edges;
-    }
-
-    withAlternatingEdges(initialParity = 1) {
-        let parity = initialParity;
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof Edge) {
-                newEdges.push(this.edges[i].withParity(parity));
-                parity *= -1;
-            } else {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
+        this.offset = offset;
     }
 
     opposite() {
@@ -27,7 +15,69 @@ class Tile {
         for (let i = 0; i < this.edges.length; i++) {
             newEdges.push(this.edges[i].opposite());
         }
-        return new Tile(newEdges);
+        return new JoinedTile(newEdges, this.offset.opposite());
+    }
+
+    draw(ctx, position, angle) {
+        let coord = new Coord(position.x + this.offset.x, position.y + this.offset.y);
+        ctx.moveTo(coord.x, coord.y);
+        ctx.beginPath()
+        for (let i = 0; i < this.edges.length; i++) {
+            ctx.lineTo(coord.x + this.edges[i].midRe(angle), coord.y + this.edges[i].midIm(angle));
+            coord = coord.plus(this.edges[i]);
+            if (!this.edges[i].surroundsHole) {
+                // Skip this line to prevent the tile having an ugly internal line.
+                ctx.lineTo(coord.x, coord.y);
+            }
+        }
+        ctx.closePath()
+        ctx.fill();
+        ctx.stroke();
+        ctx.moveTo(position.x, position.y);
+    }
+}
+
+class Tile {
+    constructor(joinedTiles, specialPoints, controlPointOffset) {
+        this.joinedTiles = joinedTiles;
+        this.specialPoints = specialPoints;
+        this.controlPointOffset = controlPointOffset;
+    }
+
+    static withAlternatingEdges(arr) {
+        let parity = 1;
+        const edges = [];
+        let controlPointOffset = new Coord(0, 0);
+        let offset = new Coord(0, 0);
+        const points = new Map();
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] instanceof Edge) {
+                offset = offset.plus(arr[i]);
+                edges.push(arr[i].withParity(parity));
+                parity *= -1;
+            } else if (arr[i] instanceof ControlPoint) {
+                controlPointOffset = offset;
+            } else {
+                points.set(arr[i], offset);
+            }
+        }
+        return new Tile([new JoinedTile(edges)], points, controlPointOffset);
+    }
+
+    static empty() {
+        return new Tile([], new Map(), new Coord(0, 0));
+    }
+
+    opposite() {
+        const newJoinedTiles = [];
+        for (let i = 0; i < this.joinedTiles.length; i++) {
+            newJoinedTiles.push(this.joinedTiles[i].opposite());
+        }
+        const oppositePoints = new Map();
+        this.specialPoints.forEach((value, key) => {
+            oppositePoints.set(key.opposite(), value.opposite());
+        });
+        return new Tile(newJoinedTiles, oppositePoints, this.controlPointOffset.opposite());
     }
 
     draw(ctx, angle) {
@@ -36,143 +86,75 @@ class Tile {
         const controlPoints = [];
         ctx.strokeStyle = '#000';
         ctx.fillStyle = '#f00'; // Set fill color to red
-        ctx.beginPath();
-        let re = 500;
-        let im = 500;
-        ctx.moveTo(re, im);
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof TipPoint) {
-                tips.push({ 're': re, 'im': im });
-            }
-            if (this.edges[i] instanceof EndPoint) {
-                endPoints.push({ 're': re, 'im': im });
-            }
-            if (this.edges[i] instanceof ControlPoint) {
-                controlPoints.push({ 're': re, 'im': im });
-            }
-            if (!(this.edges[i] instanceof Edge)) {
-                continue;
-            }
-            ctx.lineTo(re + this.edges[i].midRe(angle), im + this.edges[i].midIm(angle));
-            re += this.edges[i].re;
-            im += this.edges[i].im;
-            if (!this.edges[i].surroundsHole) {
-                // Skip this line to prevent the tile having an ugly internal line.
-                ctx.lineTo(re, im);
-            }
+        let coord = new Coord(500, 500);
+        ctx.moveTo(coord.x, coord.y);
+        for (let i = 0; i < this.joinedTiles.length; i++) {
+            this.joinedTiles[i].draw(ctx, coord, angle);
         }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
         if (!DRAW_POINTS) {
             return;
         }
-        for (let i = 0; i < tips.length; i++) {
+        ctx.moveTo(0, 0);
+        // this.joinedTiles.forEach((val) => {
+        //     ctx.fillStyle = '#00f';
+        //     ctx.beginPath();
+        //     ctx.arc(500 + val.offset.x, 500 + val.offset.y, 5, 0, 2 * Math.PI);
+        //     ctx.fill();
+        // });
+        this.specialPoints.forEach((val, key) => {
             ctx.fillStyle = '#0f0';
             ctx.beginPath();
-            ctx.arc(tips[i].re, tips[i].im, 5, 0, 2 * Math.PI);
+            ctx.arc(500 + val.x, 500 + val.y, 5, 0, 2 * Math.PI);
             ctx.fill();
-        }
-        for (let i = 0; i < endPoints.length; i++) {
-            ctx.fillStyle = '#00f';
-            ctx.beginPath();
-            ctx.arc(endPoints[i].re, endPoints[i].im, 5, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-        for (let i = 0; i < controlPoints.length; i++) {
             ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(controlPoints[i].re, controlPoints[i].im, 5, 0, 2 * Math.PI);
-            ctx.fill();
-        }
+            ctx.fillText(key.label(), 500 + val.x + 10, 500 + val.y + 10);
+        });
     }
 
-    edgesAndTipsOnly() {
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof Edge || this.edges[i] instanceof TipPoint) {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
-    }
-
-    edgesAndEndPointsOnly() {
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof Edge || this.edges[i] instanceof EndPoint) {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
-    }
 
     join(tile) {
-        if (this.edges.length == 1 && this.edges[0] instanceof ControlPoint) {
+        if (this.joinedTiles.length == 0) {
             return tile;
         }
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof ControlPoint) {
-                for (let j = 0; j < tile.edges.length; j++) {
-                    if (tile.edges[j] instanceof Edge || tile.edges[j] instanceof ControlPoint) {
-                        newEdges.push(tile.edges[j]);;
-                    }
-                }
-            } else {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
+        const newJoinedTiles = this.joinedTiles.slice();
+        tile.joinedTiles.forEach((val) => {
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset)))
+        });
+        const specialPoints = new Map();
+        this.specialPoints.forEach((val, key) => {
+            specialPoints.set(key, val);
+        });
+        return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(this.controlPointOffset));
     }
 
-    joinToEndPoint(tile) {
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (this.edges[i] instanceof EndPoint) {
-                for (let j = 0; j < tile.edges.length; j++) {
-                    newEdges.push(tile.edges[j]);
-                }
-            } else {
-                newEdges.push(this.edges[i]);
-            }
+    joinPoints(tile, fromPoint, toPoint, keepLeftPoints, keepRightPoints) {
+        if (!(keepLeftPoints instanceof Array)) {
+            keepLeftPoints = !!keepLeftPoints ? [keepLeftPoints] : [];
         }
-        return new Tile(newEdges);
+        if (!(keepRightPoints instanceof Array)) {
+            keepRightPoints = !!keepRightPoints ? [keepRightPoints] : [];
+        }
+        const newJoinedTiles = this.joinedTiles.slice();
+        let joinFromOffset = this.specialPoints.get(fromPoint);
+        let joinToOffset = (toPoint != null) ? tile.specialPoints.get(toPoint) : new Coord(0, 0);
+
+        tile.joinedTiles.forEach((val) => {
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(joinFromOffset).minus(joinToOffset)))
+        });
+        const specialPoints = new Map();
+        keepLeftPoints.forEach(val => {
+            if (this.specialPoints.get(val)) {
+                specialPoints.set(val, this.specialPoints.get(val));
+            }
+        });
+        keepRightPoints.forEach(val => {
+            if (tile.specialPoints.get(val)) {
+                specialPoints.set(val, tile.specialPoints.get(val).plus(joinFromOffset).minus(joinToOffset));
+            }
+        });
+        return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(joinFromOffset));
     }
 
-
-    joinPoints(tile, fromPoint, toPoint) {
-        let joined = false;
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (!joined && (this.edges[i] == fromPoint)) {
-                joined = true;
-                const joinIndex = toPoint ? tile.edges.indexOf(toPoint) : 0;
-                for (let j = joinIndex; j < joinIndex + tile.edges.length; j++) {
-                    newEdges.push(tile.edges[j % tile.edges.length]);
-                }
-            } else {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
-    }
-
-    joinToTip(tile) {
-        let joined = false;
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            if (!joined & (this.edges[i] instanceof TipPoint)) {
-                joined = true;
-                for (let j = 0; j < tile.edges.length; j++) {
-                    newEdges.push(tile.edges[j]);
-                }
-            } else {
-                newEdges.push(this.edges[i]);
-            }
-        }
-        return new Tile(newEdges);
-    }
 }
 
 export default Tile;
