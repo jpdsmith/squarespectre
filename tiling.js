@@ -2,7 +2,7 @@
 import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
-const EDGE_LENGTH = 2;
+const EDGE_LENGTH = 10;
 
 const endPointX = new EndPoint("X");
 const endPointY = new EndPoint("Y");

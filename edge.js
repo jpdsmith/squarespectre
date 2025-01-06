@@ -5,6 +5,7 @@ class Edge {
         this.direction = direction;
         this.parity = parity;
         this.surroundsHole = surroundsHole;
+        this.oppositeEdge = null;
     }
 
     inwards() {
@@ -16,7 +17,11 @@ class Edge {
     }
 
     opposite() {
-        return new Edge(this.length, Math.PI + this.angle, this.direction, this.parity, this.surroundsHole);
+        if (!this.oppositeEdge) {
+            this.oppositeEdge = new Edge(this.length, Math.PI + this.angle, this.direction, this.parity, this.surroundsHole);
+            this.oppositeEdge.oppositeEdge = this;
+        }
+        return this.oppositeEdge;
     }
 
     markHole() {

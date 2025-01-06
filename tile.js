@@ -9,14 +9,19 @@ class JoinedTile {
         this.edges = edges;
         this.offset = offset;
         this.color = color;
+        this.oppositeValue = null;
     }
 
     opposite() {
-        const newEdges = [];
-        for (let i = 0; i < this.edges.length; i++) {
-            newEdges.push(this.edges[i].opposite());
+        if (!this.oppositeValue) {
+            const newEdges = [];
+            for (let i = 0; i < this.edges.length; i++) {
+                newEdges.push(this.edges[i].opposite());
+            }
+            this.oppositeValue = new JoinedTile(newEdges, this.offset.opposite(), this.color);
+            this.oppositeValue.oppositeValue = this;
         }
-        return new JoinedTile(newEdges, this.offset.opposite(), this.color);
+        return this.oppositeValue;
     }
 
     draw(ctx, position, angle) {
@@ -34,7 +39,7 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
-        // ctx.stroke();
+        ctx.stroke();
         ctx.moveTo(position.x, position.y);
     }
 }
@@ -44,6 +49,7 @@ class Tile {
         this.joinedTiles = joinedTiles;
         this.specialPoints = specialPoints;
         this.controlPointOffset = controlPointOffset;
+        this.oppositeValue = null;
     }
 
     static withAlternatingEdges(arr, color = "#fff") {
@@ -71,15 +77,19 @@ class Tile {
     }
 
     opposite() {
-        const newJoinedTiles = [];
-        for (let i = 0; i < this.joinedTiles.length; i++) {
-            newJoinedTiles.push(this.joinedTiles[i].opposite());
+        if (!this.oppositeValue) {
+            const newJoinedTiles = [];
+            for (let i = 0; i < this.joinedTiles.length; i++) {
+                newJoinedTiles.push(this.joinedTiles[i].opposite());
+            }
+            const oppositePoints = new Map();
+            this.specialPoints.forEach((value, key) => {
+                oppositePoints.set(key.opposite(), value.opposite());
+            });
+            this.oppositeValue = new Tile(newJoinedTiles, oppositePoints, this.controlPointOffset.opposite());
+            this.oppositeValue.oppositeValue = this;
         }
-        const oppositePoints = new Map();
-        this.specialPoints.forEach((value, key) => {
-            oppositePoints.set(key.opposite(), value.opposite());
-        });
-        return new Tile(newJoinedTiles, oppositePoints, this.controlPointOffset.opposite());
+        return this.oppositeValue;
     }
 
     draw(ctx, angle) {
