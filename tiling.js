@@ -57,7 +57,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e09.inwards(),
         endPointX,
         e11,
-        e01.inwards()]);
+        e01.inwards()], "#fff");
     const N0x = I0x;
     const M0x = Tile.empty();
     const S0y = Tile.empty();
@@ -72,7 +72,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
         endPointY,
         e01,
-        e03.inwards()]);
+        e03.inwards()], "#fff");
 
     const N0y = I0y;
     const M0y = Tile.empty();
@@ -88,7 +88,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e01.inwards(),
         endPointZ,
         e03,
-        e05.inwards()]);
+        e05.inwards()], "#fff");
     const N0z = I0z;
     const M0z = Tile.empty();
 
@@ -110,7 +110,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
 
         e01,
-        e10]);
+        e10], "#ff0");
     const Ox = Tile.withAlternatingEdges([
         e05.markHole(),
         e02,
@@ -129,7 +129,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
         e01,
         e03.inwards()
-    ]);
+    ], "#ff0");
 
     const Ey = Tile.withAlternatingEdges([
         e02.inwards(),
@@ -148,7 +148,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11,
         e01.inwards(),
         e03,
-        e12]);
+        e12], "#ff0");
     const Oy = Tile.withAlternatingEdges([
         e07.markHole(),
         e04,
@@ -167,7 +167,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e01.inwards(),
         e03,
         e05.inwards()
-    ]);
+    ], "#ff0");
 
     const Ez = Tile.withAlternatingEdges([
         e10.inwards(),
@@ -186,7 +186,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11,
         e01.inwards(),
         e07,
-        e08]);
+        e08], "#ff0");
     const Oz = Tile.withAlternatingEdges([
         e03.markHole(),
         e12,
@@ -205,7 +205,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e09.inwards(),
         e11,
         e01.inwards()
-    ]);
+    ], "#ff0");
 
     const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
     const I1x = conwayI(S0x, I0x, Ex, Ox);

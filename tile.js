@@ -5,9 +5,10 @@ import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 const DRAW_POINTS = true;
 
 class JoinedTile {
-    constructor(edges, offset = new Coord(0, 0)) {
+    constructor(edges, offset = new Coord(0, 0), color = "#fff") {
         this.edges = edges;
         this.offset = offset;
+        this.color = color;
     }
 
     opposite() {
@@ -15,13 +16,14 @@ class JoinedTile {
         for (let i = 0; i < this.edges.length; i++) {
             newEdges.push(this.edges[i].opposite());
         }
-        return new JoinedTile(newEdges, this.offset.opposite());
+        return new JoinedTile(newEdges, this.offset.opposite(), this.color);
     }
 
     draw(ctx, position, angle) {
         let coord = new Coord(position.x + this.offset.x, position.y + this.offset.y);
         ctx.moveTo(coord.x, coord.y);
         ctx.beginPath()
+        ctx.fillStyle = this.color;
         for (let i = 0; i < this.edges.length; i++) {
             ctx.lineTo(coord.x + this.edges[i].midRe(angle), coord.y + this.edges[i].midIm(angle));
             coord = coord.plus(this.edges[i]);
@@ -44,7 +46,7 @@ class Tile {
         this.controlPointOffset = controlPointOffset;
     }
 
-    static withAlternatingEdges(arr) {
+    static withAlternatingEdges(arr, color = "#fff") {
         let parity = 1;
         const edges = [];
         let controlPointOffset = new Coord(0, 0);
@@ -61,7 +63,7 @@ class Tile {
                 points.set(arr[i], offset);
             }
         }
-        return new Tile([new JoinedTile(edges)], points, controlPointOffset);
+        return new Tile([new JoinedTile(edges, new Coord(0, 0), color)], points, controlPointOffset);
     }
 
     static empty() {
@@ -118,7 +120,7 @@ class Tile {
         }
         const newJoinedTiles = this.joinedTiles.slice();
         tile.joinedTiles.forEach((val) => {
-            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset)))
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset), val.color))
         });
         const specialPoints = new Map();
         this.specialPoints.forEach((val, key) => {
@@ -139,7 +141,7 @@ class Tile {
         let joinToOffset = (toPoint != null) ? tile.specialPoints.get(toPoint) : new Coord(0, 0);
 
         tile.joinedTiles.forEach((val) => {
-            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(joinFromOffset).minus(joinToOffset)))
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(joinFromOffset).minus(joinToOffset), val.color))
         });
         const specialPoints = new Map();
         keepLeftPoints.forEach(val => {
