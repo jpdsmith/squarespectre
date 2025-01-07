@@ -47,7 +47,19 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e09.inwards(),
         endPointX,
         e11,
-        e01.inwards()], "#fff");
+        e01.inwards()], "#0ff");
+    const OddX = Tile.withAlternatingEdges([
+        e10.inwards(),
+        endPointX,
+        e12,
+        e02.inwards(),
+        e04.markHole(),
+        e01,
+        tipX,
+        e06,
+        controlPoint,
+        e07,
+        e08], "#0ff");
     const N0x = I0x;
     const M0x = Tile.empty();
     const S0y = Tile.empty();
@@ -62,7 +74,19 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e11.inwards(),
         endPointY,
         e01,
-        e03.inwards()], "#fff");
+        e03.inwards()], "#f0f");
+    const OddY = Tile.withAlternatingEdges([
+        e12.inwards(),
+        endPointY,
+        e02,
+        e04.inwards(),
+        e06.markHole(),
+        e03,
+        tipY,
+        e08,
+        controlPoint,
+        e09,
+        e10], "#f0f");
 
     const N0y = I0y;
     const M0y = Tile.empty();
@@ -78,124 +102,29 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
         e01.inwards(),
         endPointZ,
         e03,
-        e05.inwards()], "#fff");
-    const N0z = I0z;
-    const M0z = Tile.empty();
+        e05.inwards()], "#ff0");
 
-    const Ex = Tile.withAlternatingEdges([
-        e12.inwards(),
-        e02,
-        e04.inwards(),
-        e06.markHole(),
-        e03,
-        e08,
-        e09,
-        e03.inwards(),
-        e05.markHole(),
-        e02,
-        e07,
-        e08,
-        controlPoint,
-        e09,
-        e11.inwards(),
-
-        e01,
-        e10], "#00f");
-    const Ox = Tile.withAlternatingEdges([
-        e05.markHole(),
-        e02,
-        e07,
-        e08,
+    const OddZ = Tile.withAlternatingEdges([
         e02.inwards(),
-        e04.markHole(),
-        e01,
-        e06,
-        controlPoint,
-        e07,
-        e08,
-        e10.inwards(),
-        e12,
-        e09,
-        e11.inwards(),
-        e01,
-        e03.inwards()
-    ], "#0ff");
-
-    const Ey = Tile.withAlternatingEdges([
-        e02.inwards(),
+        endPointZ,
         e04,
         e06.inwards(),
         e08.markHole(),
         e05,
-        e10,
-        e11,
-        e05.inwards(),
-        e07.markHole(),
-        e04,
-        e09,
+        tipZ,
         e10,
         controlPoint,
         e11,
-        e01.inwards(),
-        e03,
-        e12], "#0f0");
-    const Oy = Tile.withAlternatingEdges([
-        e07.markHole(),
-        e04,
-        e09,
-        e10,
-        e04.inwards(),
-        e06.markHole(),
-        e03,
-        e08,
-        controlPoint,
-        e09,
-        e10,
-        e12.inwards(),
-        e02,
-        e11,
-        e01.inwards(),
-        e03,
-        e05.inwards()
-    ], "#ff0");
+        e12,], "#ff0");
+    const N0z = I0z;
+    const M0z = Tile.empty();
 
-    const Ez = Tile.withAlternatingEdges([
-        e10.inwards(),
-        e12,
-        e02.inwards(),
-        e04.markHole(),
-        e01,
-        e06,
-        e03.markHole(),
-        e12,
-        e05,
-        e06,
-        controlPoint,
-        e07,
-        e09.inwards(),
-        e11,
-        e01.inwards(),
-        e07,
-        e08], "#f00");
-    const Oz = Tile.withAlternatingEdges([
-        e03.markHole(),
-        e12,
-        e05,
-        e06,
-        e12.inwards(),
-        e02.markHole(),
-        e11,
-        e04,
-        controlPoint,
-        e05,
-        e06,
-        e08.inwards(),
-        e10,
-        e07,
-        e09.inwards(),
-        e11,
-        e01.inwards()
-    ], "#f0f");
+    const Ex = OddY.createEvenMystic(I0y);
+    const Ox = I0y.createOddMystic(OddX);
+    const Ey = OddZ.createEvenMystic(I0z);
+    const Oy = I0z.createOddMystic(OddY);
+    const Ez = OddX.createEvenMystic(I0x);
+    const Oz = I0x.createOddMystic(OddZ.opposite());
 
     const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
     const I1x = conwayI(S0x, I0x, Ex, Ox);
@@ -251,12 +180,6 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
     const PB1y = penguinY(TB1, TC1, PA1y, S1x, S1z);
     const PB1z = penguinZ(TB1, TC1, PA1z, S1x, S1y);
 
-    //PB1x.setColor("red");
-    // PB1y.setColor("green");
-    // PB1z.setColor("blue");
-
-    // N2x.setColor("pink");
-
     const TD2 = rose(TC1, PB1x, PB1y, PB1z, N2x, N2y, N2z);
 
     const PA2x = PB1x.joinPoints(N2x, tipX.opposite(), null, [tipX], [endPointX])
@@ -285,7 +208,10 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
 
     const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
 
-    TD3.draw(ctx, angle, morph);
+    TA2.draw(ctx, angle, morph);
+    //OddY.draw(ctx, angle, morph);
+    // TD2.draw(ctx, angle, morph);
+
 }
 
 function conwayS(sa, ia, sb, ib, e, o) {

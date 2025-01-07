@@ -3,6 +3,7 @@ import { Coord } from './coord.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
 
 const DRAW_POINTS = false;
+let COLOR = 14777215;
 
 class JoinedTile {
     constructor(edges, offset = new Coord(0, 0), color = "#fff") {
@@ -39,6 +40,7 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
+        ctx.strokeStyle = "grey";
         ctx.stroke();
         ctx.moveTo(position.x, position.y);
     }
@@ -52,8 +54,8 @@ class Tile {
         this.oppositeValue = null;
     }
 
-    static withAlternatingEdges(arr, color = "#fff") {
-        let parity = 1;
+    static withAlternatingEdges(arr, color = "#fff", initialParity = 1) {
+        let parity = initialParity;
         const edges = [];
         let controlPointOffset = new Coord(0, 0);
         let offset = new Coord(0, 0);
@@ -137,6 +139,34 @@ class Tile {
             specialPoints.set(key, val);
         });
         return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(this.controlPointOffset));
+    }
+
+    createEvenMystic(tile) {
+        return this.join(tile);
+    }
+
+    createOddMystic(tile) {
+        if (tile.joinedTiles.length != 1 || this.joinedTiles.length != 1) {
+            throw new Error("Use join for multiple tiles");
+        }
+        const newJoinedTiles = this.joinedTiles.slice();
+        const joinedTile = tile.joinedTiles[0];
+        const edgesToJoin = joinedTile.edges;
+        const rotatedEdgeOrder = [];
+        let offset = new Coord(0,0);
+        for (let i = 0; i < edgesToJoin.length; i++) {
+            const idx = (i+2) % edgesToJoin.length;
+            if (i < 6) {
+                offset = offset.plus(edgesToJoin[idx]);
+            }
+            rotatedEdgeOrder.push(edgesToJoin[idx]);
+        }
+        newJoinedTiles.push(new JoinedTile(rotatedEdgeOrder, joinedTile.offset.plus(this.controlPointOffset), joinedTile.color))
+        const specialPoints = new Map();
+        this.specialPoints.forEach((val, key) => {
+            specialPoints.set(key, val);
+        });
+        return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(this.controlPointOffset).plus(offset));
     }
 
     joinPoints(tile, fromPoint, toPoint, keepLeftPoints, keepRightPoints) {
