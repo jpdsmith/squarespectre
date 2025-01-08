@@ -25,17 +25,21 @@ class JoinedTile {
         return this.oppositeValue;
     }
 
-    draw(ctx, position, angle) {
+    draw(ctx, position, angle, edgeMorph) {
         let coord = new Coord(position.x + this.offset.x, position.y + this.offset.y);
         ctx.moveTo(coord.x, coord.y);
         ctx.beginPath()
         ctx.fillStyle = this.color;
         for (let i = 0; i < this.edges.length; i++) {
-            ctx.lineTo(coord.x + this.edges[i].midRe(angle), coord.y + this.edges[i].midIm(angle));
+            const oldX = coord.x;
+            const oldY = coord.y;
+            const midX = coord.x + this.edges[i].midRe(angle);
+            const midY =  coord.y + this.edges[i].midIm(angle);
             coord = coord.plus(this.edges[i]);
-            if (!this.edges[i].surroundsHole) {
-            // Skip this line to prevent the tile having an ugly internal line.
-            ctx.lineTo(coord.x, coord.y);
+            ctx.lineTo(edgeMorph*midX + 0.5*(1-edgeMorph)*(coord.x + oldX), edgeMorph*midY + 0.5*(1-edgeMorph)*(coord.y + oldY));
+            if (edgeMorph < 1.0 || !this.edges[i].surroundsHole) {
+                // Skip this line to prevent the tile having an ugly internal line.
+                ctx.lineTo(coord.x, coord.y);
             }
         }
         ctx.closePath()
@@ -94,7 +98,7 @@ class Tile {
         return this.oppositeValue;
     }
 
-    draw(ctx, angle) {
+    draw(ctx, angle, edgeMorph) {
         const tips = [];
         const endPoints = [];
         const controlPoints = [];
@@ -103,7 +107,7 @@ class Tile {
         let coord = new Coord(500, 500);
         ctx.moveTo(coord.x, coord.y);
         for (let i = 0; i < this.joinedTiles.length; i++) {
-            this.joinedTiles[i].draw(ctx, coord, angle);
+            this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph);
         }
         if (!DRAW_POINTS) {
             return;
@@ -153,9 +157,9 @@ class Tile {
         const joinedTile = tile.joinedTiles[0];
         const edgesToJoin = joinedTile.edges;
         const rotatedEdgeOrder = [];
-        let offset = new Coord(0,0);
+        let offset = new Coord(0, 0);
         for (let i = 0; i < edgesToJoin.length; i++) {
-            const idx = (i+2) % edgesToJoin.length;
+            const idx = (i + 2) % edgesToJoin.length;
             if (i < 6) {
                 offset = offset.plus(edgesToJoin[idx]);
             }

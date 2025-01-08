@@ -12,7 +12,7 @@ const tipY = new TipPoint("Y");
 const tipZ = new TipPoint("Z");
 
 
-function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
     const ANGLE_1 = Math.PI / 2;
     const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1 / 4 - 1 / 3);
     const ANGLE_3 = Math.PI / 6 + morph * Math.PI * (1 / 4 - 1 / 6);
@@ -208,9 +208,9 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph = 0.0) {
 
     const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
 
-    TA2.draw(ctx, angle, morph);
-    //OddY.draw(ctx, angle, morph);
-    // TD2.draw(ctx, angle, morph);
+    TA2.draw(ctx, angle, edgeMorph);
+    //OddY.draw(ctx, angle, edgeMorph);
+    // TD2.draw(ctx, angle, edgeMorph);
 
 }
 
