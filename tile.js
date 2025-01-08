@@ -34,9 +34,9 @@ class JoinedTile {
             const oldX = coord.x;
             const oldY = coord.y;
             const midX = coord.x + this.edges[i].midRe(angle);
-            const midY =  coord.y + this.edges[i].midIm(angle);
+            const midY = coord.y + this.edges[i].midIm(angle);
             coord = coord.plus(this.edges[i]);
-            ctx.lineTo(edgeMorph*midX + 0.5*(1-edgeMorph)*(coord.x + oldX), edgeMorph*midY + 0.5*(1-edgeMorph)*(coord.y + oldY));
+            ctx.lineTo(edgeMorph * midX + 0.5 * (1 - edgeMorph) * (coord.x + oldX), edgeMorph * midY + 0.5 * (1 - edgeMorph) * (coord.y + oldY));
             if (edgeMorph < 1.0 || !this.edges[i].surroundsHole) {
                 // Skip this line to prevent the tile having an ugly internal line.
                 ctx.lineTo(coord.x, coord.y);
@@ -44,9 +44,13 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
-        ctx.strokeStyle = "grey";
+        ctx.strokeStyle = "black";
         ctx.stroke();
         ctx.moveTo(position.x, position.y);
+    }
+
+    copy() {
+        return new JoinedTile(this.edges.slice(), this.offset, this.color);
     }
 }
 
@@ -98,13 +102,13 @@ class Tile {
         return this.oppositeValue;
     }
 
-    draw(ctx, angle, edgeMorph) {
+    draw(ctx, angle, edgeMorph, startPosition = new Coord(500, 500)) {
         const tips = [];
         const endPoints = [];
         const controlPoints = [];
         ctx.strokeStyle = '#000';
         ctx.fillStyle = '#f00'; // Set fill color to red
-        let coord = new Coord(500, 500);
+        let coord = startPosition;
         ctx.moveTo(coord.x, coord.y);
         for (let i = 0; i < this.joinedTiles.length; i++) {
             this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph);
@@ -134,7 +138,10 @@ class Tile {
         if (this.joinedTiles.length == 0) {
             return tile;
         }
-        const newJoinedTiles = this.joinedTiles.slice();
+        const newJoinedTiles = [];
+        this.joinedTiles.forEach((val) => {
+            newJoinedTiles.push(val.copy());
+        });
         tile.joinedTiles.forEach((val) => {
             newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset), val.color))
         });
@@ -153,8 +160,8 @@ class Tile {
         if (tile.joinedTiles.length != 1 || this.joinedTiles.length != 1) {
             throw new Error("Use join for multiple tiles");
         }
-        const newJoinedTiles = this.joinedTiles.slice();
-        const joinedTile = tile.joinedTiles[0];
+        const newJoinedTiles = [this.joinedTiles[0].copy()];
+        const joinedTile = tile.joinedTiles[0].copy();
         const edgesToJoin = joinedTile.edges;
         const rotatedEdgeOrder = [];
         let offset = new Coord(0, 0);
@@ -203,7 +210,7 @@ class Tile {
 
     setColor(color) {
         this.joinedTiles.forEach((val) => { val.color = color; });
-
+        return this;
     }
 
 }

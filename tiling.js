@@ -1,8 +1,7 @@
 
 import Tile from './tile.js';
 import { Edge, ControlPoint, EndPoint, TipPoint } from './edge.js';
-
-const EDGE_LENGTH = 10;
+import { Coord } from './coord.js';
 
 const endPointX = new EndPoint("X");
 const endPointY = new EndPoint("Y");
@@ -12,7 +11,11 @@ const tipY = new TipPoint("Y");
 const tipZ = new TipPoint("Z");
 
 
-function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale = 10, startPosition = new Coord(500, 500)) {
+    red = 255;
+    green = 255;
+    blue = 255;
+    nextColor();
     const ANGLE_1 = Math.PI / 2;
     const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1 / 4 - 1 / 3);
     const ANGLE_3 = Math.PI / 6 + morph * Math.PI * (1 / 4 - 1 / 6);
@@ -20,18 +23,21 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
     const ANGLE_5 = -Math.PI / 6 + morph * Math.PI * (-1 / 4 + 1 / 6);
     const ANGLE_6 = -Math.PI / 3 + morph * Math.PI * (-1 / 4 + 1 / 3);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const e01 = new Edge(zValue * EDGE_LENGTH, ANGLE_1);
-    const e02 = new Edge(xValue * EDGE_LENGTH, ANGLE_2 + angle);
-    const e03 = new Edge(yValue * EDGE_LENGTH, ANGLE_3);
-    const e04 = new Edge(zValue * EDGE_LENGTH, ANGLE_4 + angle);
-    const e05 = new Edge(xValue * EDGE_LENGTH, ANGLE_5);
-    const e06 = new Edge(yValue * EDGE_LENGTH, ANGLE_6 + angle);
-    const e07 = new Edge(zValue * EDGE_LENGTH, Math.PI + ANGLE_1);
-    const e08 = new Edge(xValue * EDGE_LENGTH, Math.PI + ANGLE_2 + angle);
-    const e09 = new Edge(yValue * EDGE_LENGTH, Math.PI + ANGLE_3);
-    const e10 = new Edge(zValue * EDGE_LENGTH, Math.PI + ANGLE_4 + angle);
-    const e11 = new Edge(xValue * EDGE_LENGTH, Math.PI + ANGLE_5);
-    const e12 = new Edge(yValue * EDGE_LENGTH, Math.PI + ANGLE_6 + angle);
+
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const e01 = new Edge(zValue * scale, ANGLE_1);
+    const e02 = new Edge(xValue * scale, ANGLE_2 + angle);
+    const e03 = new Edge(yValue * scale, ANGLE_3);
+    const e04 = new Edge(zValue * scale, ANGLE_4 + angle);
+    const e05 = new Edge(xValue * scale, ANGLE_5);
+    const e06 = new Edge(yValue * scale, ANGLE_6 + angle);
+    const e07 = new Edge(zValue * scale, Math.PI + ANGLE_1);
+    const e08 = new Edge(xValue * scale, Math.PI + ANGLE_2 + angle);
+    const e09 = new Edge(yValue * scale, Math.PI + ANGLE_3);
+    const e10 = new Edge(zValue * scale, Math.PI + ANGLE_4 + angle);
+    const e11 = new Edge(xValue * scale, Math.PI + ANGLE_5);
+    const e12 = new Edge(yValue * scale, Math.PI + ANGLE_6 + angle);
 
     const controlPoint = new ControlPoint();
 
@@ -47,7 +53,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e09.inwards(),
         endPointX,
         e11,
-        e01.inwards()], "#0ff");
+        e01.inwards()]);
     const OddX = Tile.withAlternatingEdges([
         e10.inwards(),
         endPointX,
@@ -59,7 +65,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e06,
         controlPoint,
         e07,
-        e08], "#0ff");
+        e08]);
     const N0x = I0x;
     const M0x = Tile.empty();
     const S0y = Tile.empty();
@@ -74,7 +80,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e11.inwards(),
         endPointY,
         e01,
-        e03.inwards()], "#f0f");
+        e03.inwards()]);
     const OddY = Tile.withAlternatingEdges([
         e12.inwards(),
         endPointY,
@@ -86,7 +92,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e08,
         controlPoint,
         e09,
-        e10], "#f0f");
+        e10]);
 
     const N0y = I0y;
     const M0y = Tile.empty();
@@ -102,7 +108,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e01.inwards(),
         endPointZ,
         e03,
-        e05.inwards()], "#ff0");
+        e05.inwards()]);
 
     const OddZ = Tile.withAlternatingEdges([
         e02.inwards(),
@@ -115,7 +121,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
         e10,
         controlPoint,
         e11,
-        e12,], "#ff0");
+        e12,]);
     const N0z = I0z;
     const M0z = Tile.empty();
 
@@ -127,37 +133,45 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
     const Oz = I0x.createOddMystic(OddZ.opposite());
 
     const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
-    const I1x = conwayI(S0x, I0x, Ex, Ox);
-    const N1x = conwayN(S0x, I0x);
-    const M1x = conwayM(S0x, I0x, M0x);
-
     const S1y = conwayS(S0y, I0y, S0z, I0z, Ey, Oy);
-    const I1y = conwayI(S0y, I0y, Ey, Oy);
-    const N1y = conwayN(S0y, I0y);
-    const M1y = conwayM(S0y, I0y, M0y);
-
     const S1z = conwayS(S0z, I0z.opposite(), S0x, I0x, Ez, Oz);
+    nextColor();
+
+    const I1x = conwayI(S0x, I0x, Ex, Ox);
+    const I1y = conwayI(S0y, I0y, Ey, Oy);
     const I1z = conwayI(S0z, I0z.opposite(), Ez, Oz);
-    const N1z = conwayN(S0z, I0z.opposite());
+    nextColor();
+
+    const M1x = conwayM(S0x, I0x, M0x);
+    const M1y = conwayM(S0y, I0y, M0y);
     const M1z = conwayM(S0z, I0z.opposite(), M0z);
+    nextColor();
+
+    const N1x = conwayN(S0x, I0x);
+    const N1y = conwayN(S0y, I0y);
+    const N1z = conwayN(S0z, I0z.opposite());
+    nextColor();
+
 
     const S2x = conwayS(S1x, I1z, S1y, I1x, Ex, Ox);
-    const I2x = conwayI(S1x, I1z, Ex, Ox);
-    const N2x = conwayN(S1x, I1z);
-    const M2x = conwayM(S1x, I1z, M1x);
-
     const S2y = conwayS(S1y, I1x, S1z.opposite(), I1y, Ey, Oy);
-    const I2y = conwayI(S1y, I1x, Ey, Oy);
-    const N2y = conwayN(S1y, I1x);
-    const M2y = conwayM(S1y, I1x, M1y);
-
     const S2z = conwayS(S1z, I1y.opposite(), S1x, I1z, Ez, Oz);
-    const I2z = conwayI(S1z, I1y.opposite(), Ez, Oz);
-    const N2z = conwayN(S1z, I1y.opposite());
-    const M2z = conwayM(S1z, I1y.opposite(), M1z);
+    nextColor();
 
-    const S3x = conwayS(S2x, I2z, S2y, I2x, Ex, Ox);
-    const M3z = conwayM(S2z, I2y.opposite(), M2z);
+    const I2x = conwayI(S1x, I1z, Ex, Ox);
+    const I2y = conwayI(S1y, I1x, Ey, Oy);
+    const I2z = conwayI(S1z, I1y.opposite(), Ez, Oz);
+    nextColor();
+
+    const M2x = conwayM(S1x, I1z, M1x);
+    const M2y = conwayM(S1y, I1x, M1y);
+    const M2z = conwayM(S1z, I1y.opposite(), M1z);
+    nextColor();
+
+    const N2x = conwayN(S1x, I1z);
+    const N2y = conwayN(S1y, I1x);
+    const N2z = conwayN(S1z, I1y.opposite());
+    nextColor();
 
     const N3x = conwayN(S2x, I2z);
     const N3y = conwayN(S2y, I2x);
@@ -208,7 +222,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph) {
 
     const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
 
-    TA2.draw(ctx, angle, edgeMorph);
+    TD3.draw(ctx, angle, edgeMorph, startPosition);
     //OddY.draw(ctx, angle, edgeMorph);
     // TD2.draw(ctx, angle, edgeMorph);
 
@@ -219,18 +233,22 @@ function conwayS(sa, ia, sb, ib, e, o) {
         .join(e)
         .join(sb).join(ib).join(sb)
         .join(o)
-        .join(sa).join(ia).join(sa).join(ia).join(sa);
+        .join(sa).join(ia).join(sa).join(ia).join(sa)
+        .setColor(randomColor());
 }
 function conwayI(s, i, e, o) {
     return o
         .join(s).join(i).join(s).join(i).join(s)
-        .join(e);
+        .join(e)
+        .setColor(randomColor());
 }
 function conwayN(s, i) {
-    return s.join(i).join(s);
+    return s.join(i).join(s)
+        .setColor(randomColor());
 }
 function conwayM(s, i, m) {
-    return s.join(i).join(s).join(i).join(m);
+    return s.join(i).join(s).join(i).join(m)
+        .setColor(randomColor());
 }
 
 function smallPropeller(px, py, pz, td, mx, my, mz) {
@@ -323,6 +341,19 @@ function rose(tc, pbx, pby, pbz, nx, ny, nz) {
         .joinPoints(
             pbz.joinPoints(nz.opposite(), tipZ.opposite(), null, [tipZ], [endPointZ]),
             endPointY.opposite(), endPointZ, [tipX, tipY.opposite()], [tipZ]);
+}
+
+let red = 200;
+let green = 200;
+let blue = 200;
+
+function nextColor() {
+    red -= 20;
+    green -= 20;
+}
+
+function randomColor() {
+    return `rgb(${red}, ${green}, ${blue})`;
 }
 
 export { drawTiling };
