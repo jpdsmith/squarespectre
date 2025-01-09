@@ -152,7 +152,6 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const N1z = conwayN(S0z, I0z.opposite());
     nextColor();
 
-
     const S2x = conwayS(S1x, I1z, S1y, I1x, Ex, Ox);
     const S2y = conwayS(S1y, I1x, S1z.opposite(), I1y, Ey, Oy);
     const S2z = conwayS(S1z, I1y.opposite(), S1x, I1z, Ez, Oz);
@@ -176,6 +175,26 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const N3x = conwayN(S2x, I2z);
     const N3y = conwayN(S2y, I2x);
     const N3z = conwayN(S2z, I2y.opposite());
+    nextColor();
+
+    const M3x = conwayM(S2x, I2z, M2x);
+    const M3y = conwayM(S2y, I2x, M2y);
+    const M3z = conwayM(S2z, I2y.opposite(), M2z);
+    nextColor();
+
+    const S3x = conwayS(S2x, I2z, S2y, I2x, Ex, Ox);
+    const S3y = conwayS(S2y, I2x, S2z.opposite(), I2y, Ey, Oy);
+    const S3z = conwayS(S2z, I2y.opposite(), S2x, I2z, Ez, Oz);
+    nextColor();
+
+    const I3x = conwayI(S2x, I2z, Ex, Ox);
+    const I3y = conwayI(S2y, I2x, Ey, Oy);
+    const I3z = conwayI(S2z, I2y.opposite(), Ez, Oz);
+    nextColor()
+
+    const N4x = conwayN(S3x, I3z);
+    const N4y = conwayN(S3y, I3x);
+    const N4z = conwayN(S3z, I3y.opposite());
 
     const TD1 = I0x
         .joinPoints(I0z, endPointX, null, tipX, [tipZ, endPointZ])
@@ -195,36 +214,35 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const PB1z = penguinZ(TB1, TC1, PA1z, S1x, S1y);
 
     const TD2 = rose(TC1, PB1x, PB1y, PB1z, N2x, N2y, N2z);
-
-    const PA2x = PB1x.joinPoints(N2x, tipX.opposite(), null, [tipX], [endPointX])
-        .joinPoints(TA1.opposite(), endPointX, endPointZ, [tipX], [endPointX])
-        .joinPoints(N2x.opposite(), tipX, null, [endPointX], [endPointX.opposite()])
-        .joinPoints(TA1, endPointX.opposite(), endPointZ.opposite(), [endPointX], [endPointX.opposite()])
-
-    const PA2y = PB1y.joinPoints(N2y.opposite(), tipY, null, [tipY.opposite()], [endPointY.opposite()])
-        .joinPoints(TA1.opposite(), endPointY.opposite(), endPointX, [tipY.opposite()], [endPointY.opposite()])
-        .joinPoints(N2y, tipY.opposite(), null, [endPointY.opposite()], [endPointY])
-        .joinPoints(TA1, endPointY, endPointX.opposite(), [endPointY.opposite()], [endPointY])
-
-    const PA2z = PB1z.joinPoints(N2z, tipZ, null, [tipZ.opposite()], [endPointZ.opposite()])
-        .joinPoints(TA1, endPointZ.opposite(), endPointY, [tipZ.opposite()], [endPointZ.opposite()])
-        .joinPoints(N2z.opposite(), tipZ.opposite(), null, [endPointZ.opposite()], [endPointZ])
-        .joinPoints(TA1.opposite(), endPointZ, endPointY.opposite(), [endPointZ.opposite()], [endPointZ])
+    const PA2x = rectangleX(PB1x, TA1, N2x);
+    const PA2y = rectangleY(PB1y, TA1, N2y);
+    const PA2z = rectangleZ(PB1z, TA1, N2z);
 
     const TC2 = smallPropeller(PA2x, PA2y, PA2z, TD2, M2x, M2y, M2z);
     const TB2 = largePropeller(PA2x, PA2y, PA2z, TA1, TD2, M2x, M2y, M2z);
+
     const TA2 = bird(TB2, TC2, S2x, S2y, S2z);
-
-
     const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
     const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
     const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
 
     const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
+    // const PA3x = rectangleX(PB2x, TA2, N3x);
+    // const PA3y = rectangleY(PB2y, TA2, N3y);
+    // const PA3z = rectangleZ(PB2z, TA2, N3z);
+
+
+    // const TC3 = smallPropeller(PA3x, PA3y, PA3z, TD3, M3x, M3y, M3z);
+    // const TB3 = largePropeller(PA3x, PA3y, PA3z, TA2, TD3, M3x, M3y, M3z);
+
+    // const TA3 = bird(TB3, TC3, S3x, S3y, S3z);
+    // const PB3x = penguinX(TB3, TC3, PA3x, S3y, S3z);
+    // const PB3y = penguinY(TB3, TC3, PA3y, S3x, S3z);
+    // const PB3z = penguinZ(TB3, TC3, PA3z, S3x, S3y);
+
+    // const TD4 = rose(TC3, PB3x, PB3y, PB3z, N4x, N4y, N4z);
 
     TD3.draw(ctx, angle, edgeMorph, startPosition);
-    //OddY.draw(ctx, angle, edgeMorph);
-    // TD2.draw(ctx, angle, edgeMorph);
 
 }
 
@@ -341,6 +359,27 @@ function rose(tc, pbx, pby, pbz, nx, ny, nz) {
         .joinPoints(
             pbz.joinPoints(nz.opposite(), tipZ.opposite(), null, [tipZ], [endPointZ]),
             endPointY.opposite(), endPointZ, [tipX, tipY.opposite()], [tipZ]);
+}
+
+function rectangleX(pbx, ta, nx) {
+    return pbx.joinPoints(nx, tipX.opposite(), null, [tipX], [endPointX])
+        .joinPoints(ta.opposite(), endPointX, endPointZ, [tipX], [endPointX])
+        .joinPoints(nx.opposite(), tipX, null, [endPointX], [endPointX.opposite()])
+        .joinPoints(ta, endPointX.opposite(), endPointZ.opposite(), [endPointX], [endPointX.opposite()])
+}
+
+function rectangleY(pby, ta, ny) {
+    return pby.joinPoints(ny.opposite(), tipY, null, [tipY.opposite()], [endPointY.opposite()])
+        .joinPoints(ta.opposite(), endPointY.opposite(), endPointX, [tipY.opposite()], [endPointY.opposite()])
+        .joinPoints(ny, tipY.opposite(), null, [endPointY.opposite()], [endPointY])
+        .joinPoints(ta, endPointY, endPointX.opposite(), [endPointY.opposite()], [endPointY])
+}
+
+function rectangleZ(pbz, ta, nz) {
+    return pbz.joinPoints(nz, tipZ, null, [tipZ.opposite()], [endPointZ.opposite()])
+        .joinPoints(ta, endPointZ.opposite(), endPointY, [tipZ.opposite()], [endPointZ.opposite()])
+        .joinPoints(nz.opposite(), tipZ.opposite(), null, [endPointZ.opposite()], [endPointZ])
+        .joinPoints(ta.opposite(), endPointZ, endPointY.opposite(), [endPointZ.opposite()], [endPointZ])
 }
 
 let red = 200;

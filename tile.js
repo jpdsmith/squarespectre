@@ -44,8 +44,8 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
-        ctx.strokeStyle = "black";
-        ctx.stroke();
+        // ctx.strokeStyle = "black";
+        // ctx.stroke();
         ctx.moveTo(position.x, position.y);
     }
 

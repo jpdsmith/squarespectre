@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let xfactor = 1;
     let yfactor = 1;
     let zfactor = 1;
-    let startPosition = new Coord(500, 500);
-    let scale = 10;
+    let startPosition = new Coord(1000, 500);
+    let scale = 1;
 
     function redrawTiling() {
         tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition);
@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        startPosition = new Coord(Math.floor(0.5*window.innerWidth), Math.floor(0.5*window.innerHeight));
         redrawTiling();
     }
 
