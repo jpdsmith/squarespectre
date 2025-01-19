@@ -222,11 +222,11 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const TB2 = largePropeller(PA2x, PA2y, PA2z, TA1, TD2, M2x, M2y, M2z);
 
     const TA2 = bird(TB2, TC2, S2x, S2y, S2z);
-    const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
-    const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
-    const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
+    // const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
+    // const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
+    // const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
 
-    const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
+    // const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
     // const PA3x = rectangleX(PB2x, TA2, N3x);
     // const PA3y = rectangleY(PB2y, TA2, N3y);
     // const PA3z = rectangleZ(PB2z, TA2, N3z);
@@ -242,7 +242,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
 
     // const TD4 = rose(TC3, PB3x, PB3y, PB3z, N4x, N4y, N4z);
 
-    TD3.draw(ctx, angle, edgeMorph, startPosition);
+    TA2.draw(ctx, angle, edgeMorph, startPosition);
 
 }
 

@@ -3,6 +3,7 @@
 
 <head>
   <title>Tiling</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
@@ -19,52 +20,120 @@
       top: 10px;
       left: 10px;
       background: rgba(255, 255, 255, 0.8);
-      padding: 10px;
+      padding: 10px 40px 10px 10px;
       border-radius: 10px;
+      min-width: 330px;
+      min-height: 20px;
+    }
+
+    #collapse-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ccc;
+      border: none;
+      border-radius: 5px;
+      padding: 5px;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #control-contents {
+      transition: max-height 0.1s ease;
+    }
+
+    #control-contents.closed {
+      max-height: 0px;
+      opacity: 0;
+      overflow: hidden;
+    }
+    #control-contents.open {
+      opacity: 1;
+      max-height: 500px;
+    }
+
+    #collapse-button::before {
+      content: '';
+      border: solid #555555;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+    }
+    #collapse-button.open::before {
+      transform: rotate(225deg);
+    }
+    #collapse-button.closed::before {
+      transform: rotate(45deg);
+    }
+
+    .angle-container {
+      display: inline-block;
     }
 
     .angle-container input[type="range"] {
       width: 360px;
     }
+
     .length-container input[type="range"] {
       width: 200px;
     }
+
     .short-length-container input[type="range"] {
       width: 50px;
     }
   </style>
+  <link rel="stylesheet" href="./css/range.css">
 </head>
 
 <body>
   <canvas id="myCanvas"></canvas>
   <div class="control-container">
-    <div class="angle-container">
-      <label for="angleControl">Angle:</label>
-      <input type="range" id="angleControl" min="-180" max="180" value="0">
-    </div>
-    <div class="angle-container">
-      <label for="morphControl">Morph:</label>
-      <input type="range" id="morphControl" min="-1400" max="1000" value="0">
-    </div>
-    <div class="length-container">
-      <div>
-        <label for="xFactor">Length X:</label>
-        <input type="range" id="xFactor" min="0" max="100" value="100">
-      </div>
-      <div>
-        <label for="yFactor">Length Y:</label>
-        <input type="range" id="yFactor" min="0" max="100" value="100">
-      </div>
-      <div>
-        <label for="zFactor">Length Z:</label>
-        <input type="range" id="zFactor" min="0" max="100" value="100">
-      </div>
-    </div>
 
-    <div class="short-length-container">
-      <div>
-        <label for="edgeMorph">Edge:</label>
-        <input type="range" id="edgeMorph" min="0" max="100" value="100">
+    <button id="collapse-button" class="open" onclick="toggleCollapse()">
+    </button>
+    <script>
+      function toggleCollapse() {
+      const controlContents = document.getElementById('control-contents');
+      controlContents.classList.toggle('open');
+      controlContents.classList.toggle('closed');
+
+      const btn = document.getElementById('collapse-button');
+      btn.classList.toggle('open');
+      btn.classList.toggle('closed');
+      }
+    </script>
+    <div id="control-contents" class="open">
+
+      <div class="angle-container">
+        <input type="range" id="angleControl" class="c-rng" min="0" max="360" step="1" value="90" data-range="circular">
+      </div>
+      <div class="angle-container">
+        <input type="range" id="morphControl" class="c-rng" min="0" max="360" step="1" value="90" data-range="circular">
+      </div>
+      <div class="length-container">
+        <div>
+          <label for="xFactor">X:</label>
+          <input type="range" id="xFactor" min="0" max="100" value="50">
+        </div>
+        <div>
+          <label for="yFactor">Y:</label>
+          <input type="range" id="yFactor" min="0" max="100" value="50">
+        </div>
+        <div>
+          <label for="zFactor">Z:</label>
+          <input type="range" id="zFactor" min="0" max="100" value="50">
+        </div>
+      </div>
+
+      <div class="short-length-container">
+        <div>
+          <label for="edgeMorph">Hole:</label>
+          <input type="range" id="edgeMorph" min="0" max="100" value="0">
+        </div>
       </div>
     </div>
   </div>
@@ -72,3 +141,4 @@
 </body>
 
 </html>
+</div>

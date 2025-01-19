@@ -1,5 +1,6 @@
 import * as tiling from './tiling.js';
 import { Coord } from './coord.js';
+import { RangeSlider } from "./range_slider.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
@@ -7,24 +8,28 @@ document.addEventListener('DOMContentLoaded', function () {
     let angle = 0;
     let edgeMorph = 1.0;
     let morph = 0.0;
-    let xfactor = 1;
-    let yfactor = 1;
-    let zfactor = 1;
+    let xfactor = 0.5;
+    let yfactor = 0.5;
+    let zfactor = 0.5;
     let startPosition = new Coord(1000, 500);
-    let scale = 1;
+    let scale = 20;
 
     function redrawTiling() {
         tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition);
     }
 
+
     const angleControl = document.getElementById('angleControl');
-    angleControl.addEventListener('input', (event) => {
-        angle = 2 * Math.PI * event.target.value / 360;
+
+    const angleSlider = new RangeSlider(angleControl, angleControl.dataset, (val) => {
+        angle = 2 * Math.PI * val / 360;
         redrawTiling();
     });
+
     const morphControl = document.getElementById('morphControl');
-    morphControl.addEventListener('input', (event) => {
-        morph = 1.0 * event.target.value / 100;
+
+    const morphSlider = new RangeSlider(morphControl, morphControl.dataset, (val) => {
+        morph = 1.0 * 2400 * val / 36000;
         redrawTiling();
     });
     const lengthControlX = document.getElementById('xFactor');
@@ -44,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     const edgeMorphControl = document.getElementById('edgeMorph');
     edgeMorphControl.addEventListener('input', (event) => {
-        edgeMorph = 1.0 * event.target.value / 100;
+        edgeMorph = 1.0 - (1.0 * event.target.value / 100);
         redrawTiling();
     });
 
@@ -52,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        startPosition = new Coord(Math.floor(0.5*window.innerWidth), Math.floor(0.5*window.innerHeight));
+        startPosition = new Coord(Math.floor(0.5 * window.innerWidth), Math.floor(0.5 * window.innerHeight));
         redrawTiling();
     }
 
@@ -79,19 +84,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function handleZoom(delta, centerX, centerY) {
-        const zoomFactor = 0.05; 
+        const zoomFactor = 0.05;
         const oldScale = scale;
         scale *= 1 + delta * zoomFactor;
-    
+
         if (scale < 1) scale = 1;
-    
+
         // Adjust startPosition to keep the zoom centered
         startPosition.x = centerX - (centerX - startPosition.x) * scale / oldScale;
         startPosition.y = centerY - (centerY - startPosition.y) * scale / oldScale;
-    
+
         redrawTiling();
     }
-    
+
     canvas.addEventListener('mousedown', (event) => {
         isDragging = true;
         lastX = event.clientX;
@@ -124,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault(); // Prevent default scrolling behavior
         const centerX = event.clientX;
         const centerY = event.clientY;
-        handleZoom(-event.deltaY, centerX, centerY); 
+        handleZoom(-event.deltaY, centerX, centerY);
     });
 
     canvas.addEventListener('touchstart', (event) => {
@@ -142,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
             startX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
             startY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
 
+            // Prevent default pinch-zoom behavior
+            event.preventDefault();
         }
     });
 
@@ -160,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const centerX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
             const centerY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
 
-            
             const oldScale = scale;
             scale = initialScale * scaleFactor;
 
@@ -171,11 +177,14 @@ document.addEventListener('DOMContentLoaded', function () {
             startPosition.y = centerY - (centerY - startPosition.y) * scale / oldScale;
 
             redrawTiling();
+
+            // Prevent default pinch-zoom behavior
+            event.preventDefault();
         }
     });
 
     canvas.addEventListener('touchend', (event) => {
-        if(event.touches.length < 2)
+        if (event.touches.length < 2)
             isDragging = false;
     });
 });
