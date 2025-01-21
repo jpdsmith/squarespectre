@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
   <title>Tiling</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css"
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   <style>
     body {
       margin: 0;
@@ -17,18 +19,27 @@
 
     .control-container {
       position: absolute;
-      top: 10px;
+      top: 0;
       left: 10px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px 40px 10px 10px;
-      border-radius: 10px;
-      min-width: 330px;
-      min-height: 20px;
+      background: none;
+      padding: 0;
+      height: fit-content;
     }
 
-    #collapse-button {
-      position: absolute;
-      top: 10px;
+    .controls {
+      background: #a4a2ae9e;
+      padding: 10px 40px 10px 10px;
+      border-radius: 10px;
+      width: 350px;
+      min-height: 20px;
+      margin: 10px 0;
+      padding: 10px;
+    }
+
+    .collapse-button {
+      /* position: relative; */
+      float: right;
+      top: 20px;
       right: 10px;
       background: #ccc;
       border: none;
@@ -42,31 +53,34 @@
       justify-content: center;
     }
 
-    #control-contents {
+    .control-contents {
       transition: max-height 0.1s ease;
     }
 
-    #control-contents.closed {
+    .control-contents.closed {
       max-height: 0px;
       opacity: 0;
       overflow: hidden;
     }
-    #control-contents.open {
+
+    .control-contents.open {
       opacity: 1;
       max-height: 500px;
     }
 
-    #collapse-button::before {
+    .collapse-button::before {
       content: '';
       border: solid #555555;
       border-width: 0 2px 2px 0;
       display: inline-block;
       padding: 3px;
     }
-    #collapse-button.open::before {
+
+    .collapse-button.open::before {
       transform: rotate(225deg);
     }
-    #collapse-button.closed::before {
+
+    .collapse-button.closed::before {
       transform: rotate(45deg);
     }
 
@@ -85,6 +99,49 @@
     .short-length-container input[type="range"] {
       width: 50px;
     }
+
+    h3 {
+      font-family: monospace;
+      margin: 10px 0;
+      display: inline-block;
+    }
+
+    input[type=range][hidden] {
+      display: none;
+    }
+
+    .form-select {
+      display: block;
+      width: 100%;
+      padding: .375rem 2.25rem .375rem .75rem;
+      -moz-padding-start: calc(0.75rem - 3px);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #212529;
+      background-color: #fff;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+      background-size: 16px 12px;
+      border: 1px solid #ced4da;
+      border-radius: .25rem;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .mb-3 {
+      margin-bottom: 1rem !important;
+    }
+
+    .form-select-lg {
+      padding-top: .5rem;
+      padding-bottom: .5rem;
+      padding-left: 1rem;
+      font-size: 1.25rem;
+    }
   </style>
   <link rel="stylesheet" href="./css/range.css">
 </head>
@@ -93,52 +150,83 @@
   <canvas id="myCanvas"></canvas>
   <div class="control-container">
 
-    <button id="collapse-button" class="open" onclick="toggleCollapse()">
-    </button>
-    <script>
-      function toggleCollapse() {
-      const controlContents = document.getElementById('control-contents');
-      controlContents.classList.toggle('open');
-      controlContents.classList.toggle('closed');
+    <div class="controls">
+      <h3>Controls</h3>
+      <button id="collapse-button" class="open collapse-button" onclick="toggleCollapse()">
+      </button>
+      <script>
+        function toggleCollapse() {
+          const controlContents = document.getElementById('control-contents');
+          controlContents.classList.toggle('open');
+          controlContents.classList.toggle('closed');
 
-      const btn = document.getElementById('collapse-button');
-      btn.classList.toggle('open');
-      btn.classList.toggle('closed');
-      }
-    </script>
-    <div id="control-contents" class="open">
+          const btn = document.getElementById('collapse-button');
+          btn.classList.toggle('open');
+          btn.classList.toggle('closed');
+        }
+      </script>
+      <div id="control-contents" class="control-contents open">
 
-      <div class="angle-container">
-        <input type="range" id="angleControl" class="c-rng" min="0" max="360" step="1" value="90" data-range="circular">
-      </div>
-      <div class="angle-container">
-        <input type="range" id="morphControl" class="c-rng" min="0" max="360" step="1" value="90" data-range="circular">
-      </div>
-      <div class="length-container">
-        <div>
-          <label for="xFactor">X:</label>
-          <input type="range" id="xFactor" min="0" max="100" value="50">
+        <div class="angle-container">
+          <input type="range" id="angleControl" class="c-rng" min="0" max="360" step="1" value="90"
+            data-range="circular">
         </div>
-        <div>
-          <label for="yFactor">Y:</label>
-          <input type="range" id="yFactor" min="0" max="100" value="50">
+        <div class="angle-container">
+          <input type="range" id="morphControl" class="c-rng" min="0" max="360" step="1" value="90"
+            data-range="circular">
         </div>
-        <div>
-          <label for="zFactor">Z:</label>
-          <input type="range" id="zFactor" min="0" max="100" value="50">
+        <div class="length-container">
+          <div>
+            <label for="xFactor">X:</label>
+            <input type="range" id="xFactor" min="0" max="100" value="50">
+          </div>
+          <div>
+            <label for="yFactor">Y:</label>
+            <input type="range" id="yFactor" min="0" max="100" value="50">
+          </div>
+          <div>
+            <label for="zFactor">Z:</label>
+            <input type="range" id="zFactor" min="0" max="100" value="50">
+          </div>
         </div>
-      </div>
 
-      <div class="short-length-container">
-        <div>
-          <label for="edgeMorph">Hole:</label>
-          <input type="range" id="edgeMorph" min="0" max="100" value="0">
+        <div class="short-length-container">
+          <div>
+            <label for="edgeMorph">Hole:</label>
+            <input type="range" id="edgeMorph" min="0" max="100" value="0">
+          </div>
         </div>
       </div>
     </div>
+
+    <div class="controls">
+      <h3>Colors</h3>
+      <button id="collapse-button-color" class="open collapse-button" onclick="toggleCollapseColorSection()">
+      </button>
+      <script>
+        function toggleCollapseColorSection() {
+          const controlContents = document.getElementById('color-palette-contents');
+          controlContents.classList.toggle('open');
+          controlContents.classList.toggle('closed');
+
+          const btn = document.getElementById('collapse-button-color');
+          btn.classList.toggle('open');
+          btn.classList.toggle('closed');
+        }
+      </script>
+      <div id="color-palette-contents" class="control-contents open">
+        <select class="form-select form-select-lg mb-3">
+          <option selected>Option 1</option>
+          <option value="test">Option 2</option>
+        </select>
+        <input id="color1" type="color" value="#555555">
+        <input id="color1" type="color" value="#5555ff">
+        <input id="color1" type="color" value="#5f55ff">
+      </div>
+    </div>
   </div>
+
   <script type="module" src="canvasScript.js"></script>
 </body>
 
 </html>
-</div>
