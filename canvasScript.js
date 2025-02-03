@@ -1,6 +1,8 @@
 import * as tiling from './tiling.js';
 import { Coord } from './coord.js';
 import { RangeSlider } from "./range_slider.js";
+import { Mystics, Conway } from "./colorings.js";
+import { ColorPalette } from './color_palette.js';
 
 document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
@@ -14,8 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let startPosition = new Coord(1000, 500);
     let scale = 20;
 
+    initializeColorPalettes();
+
     function redrawTiling() {
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition);
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette());
     }
 
 
@@ -59,6 +63,50 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.height = window.innerHeight;
         startPosition = new Coord(Math.floor(0.5 * window.innerWidth), Math.floor(0.5 * window.innerHeight));
         redrawTiling();
+    }
+
+    function initializeColorPalettes() {
+        const colorPalettes = document.getElementById('colorPalettes');
+        
+        const option1 = document.createElement('option');
+        option1.text = 'Mystics';
+        option1.palette = new Mystics();
+        initializeColorPickers(option1.palette);
+        colorPalettes.add(option1);
+
+        const option2 = document.createElement('option');
+        option2.text = 'Conway';
+        option2.palette = new Conway();
+        colorPalettes.add(option2);
+
+        colorPalettes.addEventListener('change', () => {
+            const colorPalette = colorPalettes.options[colorPalettes.selectedIndex].palette;
+            initializeColorPickers(colorPalette);
+            redrawTiling();
+        });
+    }
+
+    function getColorPalette() {
+        const colorPalettes = document.getElementById('colorPalettes');
+        return colorPalettes.options[colorPalettes.selectedIndex].palette;
+    }
+
+
+    function initializeColorPickers(colorPalette) {
+        const colorPickers = document.getElementById('colorPickers');
+        colorPickers.innerHTML = '';
+        colorPalette.getLabels().forEach(label => {
+            colorPalette.getColorsForLabel(label).forEach(color => {
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.value = color.getHexValue();
+                colorPicker.addEventListener('input', () => {
+                       color.hexValue = colorPicker.value;
+                       redrawTiling();
+                });
+                colorPickers.appendChild(colorPicker);
+            });
+        });
     }
 
     // Initial resize

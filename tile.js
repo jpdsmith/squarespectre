@@ -6,10 +6,11 @@ const DRAW_POINTS = false;
 let COLOR = 14777215;
 
 class JoinedTile {
-    constructor(edges, offset = new Coord(0, 0), color = "#fff") {
+    constructor(edges, offset = new Coord(0, 0), colorLabels = [], wormColorLabels = []) {
         this.edges = edges;
         this.offset = offset;
-        this.color = color;
+        this.colorLabels = colorLabels;
+        this.wormColorLabels = wormColorLabels;
         this.oppositeValue = null;
     }
 
@@ -19,17 +20,17 @@ class JoinedTile {
             for (let i = 0; i < this.edges.length; i++) {
                 newEdges.push(this.edges[i].opposite());
             }
-            this.oppositeValue = new JoinedTile(newEdges, this.offset.opposite(), this.color);
+            this.oppositeValue = new JoinedTile(newEdges, this.offset.opposite(), this.colorLabels, this.wormColorLabels);
             this.oppositeValue.oppositeValue = this;
         }
         return this.oppositeValue;
     }
 
-    draw(ctx, position, angle, edgeMorph) {
+    draw(ctx, position, angle, edgeMorph, colorPalette) {
         let coord = new Coord(position.x + this.offset.x, position.y + this.offset.y);
         ctx.moveTo(coord.x, coord.y);
         ctx.beginPath()
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = colorPalette.getColorForLabels(this.colorLabels, this.wormColorLabels).getHexValue();
         for (let i = 0; i < this.edges.length; i++) {
             const oldX = coord.x;
             const oldY = coord.y;
@@ -44,13 +45,13 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
-        // ctx.strokeStyle = "black";
-        // ctx.stroke();
+        ctx.strokeStyle = "black";
+        //ctx.stroke();
         ctx.moveTo(position.x, position.y);
     }
 
     copy() {
-        return new JoinedTile(this.edges.slice(), this.offset, this.color);
+        return new JoinedTile(this.edges.slice(), this.offset, this.colorLabels);
     }
 }
 
@@ -62,7 +63,7 @@ class Tile {
         this.oppositeValue = null;
     }
 
-    static withAlternatingEdges(arr, color = "#fff", initialParity = 1) {
+    static withAlternatingEdges(arr, colorLabels = [], initialParity = 1) {
         let parity = initialParity;
         const edges = [];
         let controlPointOffset = new Coord(0, 0);
@@ -79,7 +80,7 @@ class Tile {
                 points.set(arr[i], offset);
             }
         }
-        return new Tile([new JoinedTile(edges, new Coord(0, 0), color)], points, controlPointOffset);
+        return new Tile([new JoinedTile(edges, new Coord(0, 0), colorLabels)], points, controlPointOffset);
     }
 
     static empty() {
@@ -102,7 +103,7 @@ class Tile {
         return this.oppositeValue;
     }
 
-    draw(ctx, angle, edgeMorph, startPosition = new Coord(500, 500)) {
+    draw(ctx, angle, edgeMorph, startPosition = new Coord(500, 500), colorPalette) {
         const tips = [];
         const endPoints = [];
         const controlPoints = [];
@@ -111,7 +112,7 @@ class Tile {
         let coord = startPosition;
         ctx.moveTo(coord.x, coord.y);
         for (let i = 0; i < this.joinedTiles.length; i++) {
-            this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph);
+            this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph, colorPalette);
         }
         if (!DRAW_POINTS) {
             return;
@@ -143,7 +144,7 @@ class Tile {
             newJoinedTiles.push(val.copy());
         });
         tile.joinedTiles.forEach((val) => {
-            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset), val.color))
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(this.controlPointOffset), val.colorLabels, val.wormColorLabels))
         });
         const specialPoints = new Map();
         this.specialPoints.forEach((val, key) => {
@@ -172,7 +173,7 @@ class Tile {
             }
             rotatedEdgeOrder.push(edgesToJoin[idx]);
         }
-        newJoinedTiles.push(new JoinedTile(rotatedEdgeOrder, joinedTile.offset.plus(this.controlPointOffset), joinedTile.color))
+        newJoinedTiles.push(new JoinedTile(rotatedEdgeOrder, joinedTile.offset.plus(this.controlPointOffset), joinedTile.colorLabels, joinedTile.wormColorLabels));
         const specialPoints = new Map();
         this.specialPoints.forEach((val, key) => {
             specialPoints.set(key, val);
@@ -192,7 +193,7 @@ class Tile {
         let joinToOffset = (toPoint != null) ? tile.specialPoints.get(toPoint) : new Coord(0, 0);
 
         tile.joinedTiles.forEach((val) => {
-            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(joinFromOffset).minus(joinToOffset), val.color))
+            newJoinedTiles.push(new JoinedTile(val.edges, val.offset.plus(joinFromOffset).minus(joinToOffset), val.colorLabels, val.wormColorLabels))
         });
         const specialPoints = new Map();
         keepLeftPoints.forEach(val => {
@@ -208,11 +209,16 @@ class Tile {
         return new Tile(newJoinedTiles, specialPoints, tile.controlPointOffset.plus(joinFromOffset));
     }
 
-    setColor(color) {
-        this.joinedTiles.forEach((val) => { val.color = color; });
+    withWormColorLabels(labels) {
+        const newJoinedTiles = [];
+        this.joinedTiles.forEach((val) => {
+            const tiles = val.copy();
+            tiles.wormColorLabels = labels;
+            newJoinedTiles.push(tiles);
+         });
+        this.joinedTiles = newJoinedTiles;
         return this;
     }
-
 }
 
 export default Tile;

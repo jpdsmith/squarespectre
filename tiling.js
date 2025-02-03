@@ -11,11 +11,8 @@ const tipY = new TipPoint("Y");
 const tipZ = new TipPoint("Z");
 
 
-function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale = 10, startPosition = new Coord(500, 500)) {
-    red = 255;
-    green = 255;
-    blue = 255;
-    nextColor();
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale, startPosition, colorPalette) {
+
     const ANGLE_1 = Math.PI / 2;
     const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1 / 4 - 1 / 3);
     const ANGLE_3 = Math.PI / 6 + morph * Math.PI * (1 / 4 - 1 / 6);
@@ -53,7 +50,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e09.inwards(),
         endPointX,
         e11,
-        e01.inwards()]);
+        e01.inwards()], ["I", "X"]);
     const OddX = Tile.withAlternatingEdges([
         e10.inwards(),
         endPointX,
@@ -65,7 +62,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e06,
         controlPoint,
         e07,
-        e08]);
+        e08], ["Odd", "X"]);
     const N0x = I0x;
     const M0x = Tile.empty();
     const S0y = Tile.empty();
@@ -80,7 +77,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e11.inwards(),
         endPointY,
         e01,
-        e03.inwards()]);
+        e03.inwards()], ["I", "Y"]);
     const OddY = Tile.withAlternatingEdges([
         e12.inwards(),
         endPointY,
@@ -92,7 +89,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e08,
         controlPoint,
         e09,
-        e10]);
+        e10], ["Odd", "Y"]);
 
     const N0y = I0y;
     const M0y = Tile.empty();
@@ -108,7 +105,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e01.inwards(),
         endPointZ,
         e03,
-        e05.inwards()]);
+        e05.inwards()], ["I", "Z"]);
 
     const OddZ = Tile.withAlternatingEdges([
         e02.inwards(),
@@ -121,7 +118,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
         e10,
         controlPoint,
         e11,
-        e12,]);
+        e12,], ["Odd", "Z"]);
     const N0z = I0z;
     const M0z = Tile.empty();
 
@@ -132,69 +129,57 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const Ez = OddX.createEvenMystic(I0x);
     const Oz = I0x.createOddMystic(OddZ.opposite());
 
-    const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox);
-    const S1y = conwayS(S0y, I0y, S0z, I0z, Ey, Oy);
-    const S1z = conwayS(S0z, I0z.opposite(), S0x, I0x, Ez, Oz);
-    nextColor();
+    const S1x = conwayS(S0x, I0x, S0y, I0y, Ex, Ox, ["S", "1", "Sx"]);
+    const S1y = conwayS(S0y, I0y, S0z, I0z, Ey, Oy, ["S", "1", "Sy"]);
+    const S1z = conwayS(S0z, I0z.opposite(), S0x, I0x, Ez, Oz, ["S", "1", "Sz"]);
 
-    const I1x = conwayI(S0x, I0x, Ex, Ox);
-    const I1y = conwayI(S0y, I0y, Ey, Oy);
-    const I1z = conwayI(S0z, I0z.opposite(), Ez, Oz);
-    nextColor();
+    const I1x = conwayI(S0x, I0x, Ex, Ox, ["I", "1", "Ix"]);
+    const I1y = conwayI(S0y, I0y, Ey, Oy, ["I", "1", "Iy"]);
+    const I1z = conwayI(S0z, I0z.opposite(), Ez, Oz, ["I", "1", "Iz"]);
 
-    const M1x = conwayM(S0x, I0x, M0x);
-    const M1y = conwayM(S0y, I0y, M0y);
-    const M1z = conwayM(S0z, I0z.opposite(), M0z);
-    nextColor();
+    const M1x = conwayM(S0x, I0x, M0x, ["M", "1", "Mx"]);
+    const M1y = conwayM(S0y, I0y, M0y, ["M", "1", "My"]);
+    const M1z = conwayM(S0z, I0z.opposite(), M0z, ["M", "1", "Mz"]);
 
-    const N1x = conwayN(S0x, I0x);
-    const N1y = conwayN(S0y, I0y);
-    const N1z = conwayN(S0z, I0z.opposite());
-    nextColor();
+    const N1x = conwayN(S0x, I0x, ["N", "1", "Nx"]);
+    const N1y = conwayN(S0y, I0y, ["N", "1", "Ny"]);
+    const N1z = conwayN(S0z, I0z.opposite(), ["N", "1", "Nz"]);
 
-    const S2x = conwayS(S1x, I1z, S1y, I1x, Ex, Ox);
-    const S2y = conwayS(S1y, I1x, S1z.opposite(), I1y, Ey, Oy);
-    const S2z = conwayS(S1z, I1y.opposite(), S1x, I1z, Ez, Oz);
-    nextColor();
+    const S2x = conwayS(S1x, I1z, S1y, I1x, Ex, Ox, ["S", "2", "Sx"]);
+    const S2y = conwayS(S1y, I1x, S1z.opposite(), I1y, Ey, Oy, ["S", "2", "Sy"]);
+    const S2z = conwayS(S1z, I1y.opposite(), S1x, I1z, Ez, Oz, ["S", "2", "Sz"]);
 
-    const I2x = conwayI(S1x, I1z, Ex, Ox);
-    const I2y = conwayI(S1y, I1x, Ey, Oy);
-    const I2z = conwayI(S1z, I1y.opposite(), Ez, Oz);
-    nextColor();
+    const I2x = conwayI(S1x, I1z, Ex, Ox, ["I", "2", "Ix"]);
+    const I2y = conwayI(S1y, I1x, Ey, Oy, ["I", "2", "Iy"]);
+    const I2z = conwayI(S1z, I1y.opposite(), Ez, Oz, ["I", "2", "Iz"]);
 
-    const M2x = conwayM(S1x, I1z, M1x);
-    const M2y = conwayM(S1y, I1x, M1y);
-    const M2z = conwayM(S1z, I1y.opposite(), M1z);
-    nextColor();
+    const M2x = conwayM(S1x, I1z, M1x, ["M", "2", "Mx"]);
+    const M2y = conwayM(S1y, I1x, M1y, ["M", "2", "My"]);
+    const M2z = conwayM(S1z, I1y.opposite(), M1z, ["M", "2", "Mz"]);
 
-    const N2x = conwayN(S1x, I1z);
-    const N2y = conwayN(S1y, I1x);
-    const N2z = conwayN(S1z, I1y.opposite());
-    nextColor();
+    const N2x = conwayN(S1x, I1z, ["N", "2", "Nx"]);
+    const N2y = conwayN(S1y, I1x, ["N", "2", "Ny"]);
+    const N2z = conwayN(S1z, I1y.opposite(), ["N", "2", "Nz"]);
 
-    const N3x = conwayN(S2x, I2z);
-    const N3y = conwayN(S2y, I2x);
-    const N3z = conwayN(S2z, I2y.opposite());
-    nextColor();
+    const N3x = conwayN(S2x, I2z, ["N", "3", "Nx"]);
+    const N3y = conwayN(S2y, I2x, ["N", "3", "Ny"]);
+    const N3z = conwayN(S2z, I2y.opposite(), ["N", "3", "Nz"]);
 
-    const M3x = conwayM(S2x, I2z, M2x);
-    const M3y = conwayM(S2y, I2x, M2y);
-    const M3z = conwayM(S2z, I2y.opposite(), M2z);
-    nextColor();
+    const M3x = conwayM(S2x, I2z, M2x, ["M", "3", "Mx"]);
+    const M3y = conwayM(S2y, I2x, M2y, ["M", "3", "My"]);
+    const M3z = conwayM(S2z, I2y.opposite(), M2z, ["M", "3", "Mz"]);
 
-    const S3x = conwayS(S2x, I2z, S2y, I2x, Ex, Ox);
-    const S3y = conwayS(S2y, I2x, S2z.opposite(), I2y, Ey, Oy);
-    const S3z = conwayS(S2z, I2y.opposite(), S2x, I2z, Ez, Oz);
-    nextColor();
+    const S3x = conwayS(S2x, I2z, S2y, I2x, Ex, Ox, ["S", "3", "Sx"]);
+    const S3y = conwayS(S2y, I2x, S2z.opposite(), I2y, Ey, Oy, ["S", "3", "Sy"]);
+    const S3z = conwayS(S2z, I2y.opposite(), S2x, I2z, Ez, Oz, ["S", "3", "Sz"]);
 
-    const I3x = conwayI(S2x, I2z, Ex, Ox);
-    const I3y = conwayI(S2y, I2x, Ey, Oy);
-    const I3z = conwayI(S2z, I2y.opposite(), Ez, Oz);
-    nextColor()
+    const I3x = conwayI(S2x, I2z, Ex, Ox, ["I", "3", "Ix"]);
+    const I3y = conwayI(S2y, I2x, Ey, Oy, ["I", "3", "Iy"]);
+    const I3z = conwayI(S2z, I2y.opposite(), Ez, Oz, ["I", "3", "Iz"]);
 
-    const N4x = conwayN(S3x, I3z);
-    const N4y = conwayN(S3y, I3x);
-    const N4z = conwayN(S3z, I3y.opposite());
+    const N4x = conwayN(S3x, I3z, ["N", "4", "Nx"]);
+    const N4y = conwayN(S3y, I3x, ["N", "4", "Ny"]);
+    const N4z = conwayN(S3z, I3y.opposite(), ["N", "4", "Nz"]);
 
     const TD1 = I0x
         .joinPoints(I0z, endPointX, null, tipX, [tipZ, endPointZ])
@@ -222,17 +207,17 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
     const TB2 = largePropeller(PA2x, PA2y, PA2z, TA1, TD2, M2x, M2y, M2z);
 
     const TA2 = bird(TB2, TC2, S2x, S2y, S2z);
-    // const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
-    // const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
-    // const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
+    const PB2x = penguinX(TB2, TC2, PA2x, S2y, S2z);
+    const PB2y = penguinY(TB2, TC2, PA2y, S2x, S2z);
+    const PB2z = penguinZ(TB2, TC2, PA2z, S2x, S2y);
 
-    // const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
-    // const PA3x = rectangleX(PB2x, TA2, N3x);
-    // const PA3y = rectangleY(PB2y, TA2, N3y);
-    // const PA3z = rectangleZ(PB2z, TA2, N3z);
+    const TD3 = rose(TC2, PB2x, PB2y, PB2z, N3x, N3y, N3z);
+    const PA3x = rectangleX(PB2x, TA2, N3x);
+    const PA3y = rectangleY(PB2y, TA2, N3y);
+    const PA3z = rectangleZ(PB2z, TA2, N3z);
 
 
-    // const TC3 = smallPropeller(PA3x, PA3y, PA3z, TD3, M3x, M3y, M3z);
+    const TC3 = smallPropeller(PA3x, PA3y, PA3z, TD3, M3x, M3y, M3z);
     // const TB3 = largePropeller(PA3x, PA3y, PA3z, TA2, TD3, M3x, M3y, M3z);
 
     // const TA3 = bird(TB3, TC3, S3x, S3y, S3z);
@@ -242,31 +227,31 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale 
 
     // const TD4 = rose(TC3, PB3x, PB3y, PB3z, N4x, N4y, N4z);
 
-    TA2.draw(ctx, angle, edgeMorph, startPosition);
+    TC2.draw(ctx, angle, edgeMorph, startPosition, colorPalette);
 
 }
 
-function conwayS(sa, ia, sb, ib, e, o) {
+function conwayS(sa, ia, sb, ib, e, o, labels = []) {
     return sa.join(ia).join(sa).join(ia).join(sa)
         .join(e)
         .join(sb).join(ib).join(sb)
         .join(o)
         .join(sa).join(ia).join(sa).join(ia).join(sa)
-        .setColor(randomColor());
+        .withWormColorLabels(labels);
 }
-function conwayI(s, i, e, o) {
+function conwayI(s, i, e, o, labels = []) {
     return o
         .join(s).join(i).join(s).join(i).join(s)
         .join(e)
-        .setColor(randomColor());
+        .withWormColorLabels(labels);
 }
-function conwayN(s, i) {
+function conwayN(s, i, labels = []) {
     return s.join(i).join(s)
-        .setColor(randomColor());
+        .withWormColorLabels(labels);
 }
-function conwayM(s, i, m) {
+function conwayM(s, i, m, labels = []) {
     return s.join(i).join(s).join(i).join(m)
-        .setColor(randomColor());
+        .withWormColorLabels(labels);
 }
 
 function smallPropeller(px, py, pz, td, mx, my, mz) {
@@ -382,17 +367,5 @@ function rectangleZ(pbz, ta, nz) {
         .joinPoints(ta.opposite(), endPointZ, endPointY.opposite(), [endPointZ.opposite()], [endPointZ])
 }
 
-let red = 200;
-let green = 200;
-let blue = 200;
-
-function nextColor() {
-    red -= 20;
-    green -= 20;
-}
-
-function randomColor() {
-    return `rgb(${red}, ${green}, ${blue})`;
-}
 
 export { drawTiling };
