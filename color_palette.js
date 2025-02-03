@@ -45,7 +45,7 @@ class Color {
     }
 
     withOpacity(opacity) {
-        return new Color(this.hexValue, opacity);
+        return new Color(this.hexValue, this.opacity * opacity);
     }
 }
 

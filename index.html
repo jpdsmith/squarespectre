@@ -99,6 +99,9 @@
     .short-length-container input[type="range"] {
       width: 50px;
     }
+    input[type="range"].opacityControl {
+      width: 200px;
+    }
 
     h3 {
       font-family: monospace;
@@ -215,6 +218,15 @@
         }
       </script>
       <div id="color-palette-contents" class="control-contents open">
+        <div>
+          <label for="backgroundColor">Background:</label>
+          <input type="color" id="backgroundColor" value="#ff0000">
+        </div>
+        <div>
+          <label for="edgeColor">Edges:</label>
+          <input type="checkbox" id="strokeEnabled" checked>
+          <input type="color" id="strokeColor" value="#000000">
+        </div>
         <select id="colorPalettes" class="form-select form-select-lg mb-3">
         </select>
         <div id="colorPickers">

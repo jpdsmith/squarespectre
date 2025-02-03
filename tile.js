@@ -26,7 +26,7 @@ class JoinedTile {
         return this.oppositeValue;
     }
 
-    draw(ctx, position, angle, edgeMorph, colorPalette) {
+    draw(ctx, position, angle, edgeMorph, colorPalette, showStoke, strokeColor) {
         let coord = new Coord(position.x + this.offset.x, position.y + this.offset.y);
         ctx.moveTo(coord.x, coord.y);
         ctx.beginPath()
@@ -45,8 +45,10 @@ class JoinedTile {
         }
         ctx.closePath()
         ctx.fill();
-        ctx.strokeStyle = "black";
-        //ctx.stroke();
+        if (showStoke) {
+            ctx.strokeStyle = strokeColor;
+            ctx.stroke();
+        }
         ctx.moveTo(position.x, position.y);
     }
 
@@ -103,7 +105,7 @@ class Tile {
         return this.oppositeValue;
     }
 
-    draw(ctx, angle, edgeMorph, startPosition = new Coord(500, 500), colorPalette) {
+    draw(ctx, angle, edgeMorph, startPosition = new Coord(500, 500), colorPalette, showStoke, strokeColor) {
         const tips = [];
         const endPoints = [];
         const controlPoints = [];
@@ -112,7 +114,7 @@ class Tile {
         let coord = startPosition;
         ctx.moveTo(coord.x, coord.y);
         for (let i = 0; i < this.joinedTiles.length; i++) {
-            this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph, colorPalette);
+            this.joinedTiles[i].draw(ctx, coord, angle, edgeMorph, colorPalette, showStoke, strokeColor);
         }
         if (!DRAW_POINTS) {
             return;
@@ -215,7 +217,7 @@ class Tile {
             const tiles = val.copy();
             tiles.wormColorLabels = labels;
             newJoinedTiles.push(tiles);
-         });
+        });
         this.joinedTiles = newJoinedTiles;
         return this;
     }

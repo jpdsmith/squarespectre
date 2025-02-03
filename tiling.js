@@ -11,7 +11,7 @@ const tipY = new TipPoint("Y");
 const tipZ = new TipPoint("Z");
 
 
-function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale, startPosition, colorPalette) {
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale, startPosition, colorPalette, backgroundColor, showStoke, strokeColor) {
 
     const ANGLE_1 = Math.PI / 2;
     const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1 / 4 - 1 / 3);
@@ -21,7 +21,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale,
     const ANGLE_6 = -Math.PI / 3 + morph * Math.PI * (-1 / 4 + 1 / 3);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     const e01 = new Edge(zValue * scale, ANGLE_1);
     const e02 = new Edge(xValue * scale, ANGLE_2 + angle);
@@ -227,7 +227,7 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale,
 
     // const TD4 = rose(TC3, PB3x, PB3y, PB3z, N4x, N4y, N4z);
 
-    TC2.draw(ctx, angle, edgeMorph, startPosition, colorPalette);
+    TC2.draw(ctx, angle, edgeMorph, startPosition, colorPalette, showStoke, strokeColor);
 
 }
 

@@ -15,11 +15,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let zfactor = 0.5;
     let startPosition = new Coord(1000, 500);
     let scale = 20;
+    let backgroundColor = '#000000';
+    let strokeColor = '#000000';
+    let showStoke = true;
 
     initializeColorPalettes();
 
     function redrawTiling() {
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette());
+        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette(), backgroundColor, showStoke, strokeColor);
     }
 
 
@@ -56,6 +59,25 @@ document.addEventListener('DOMContentLoaded', function () {
         edgeMorph = 1.0 - (1.0 * event.target.value / 100);
         redrawTiling();
     });
+    const backgroundColorControl = document.getElementById('backgroundColor');
+    backgroundColorControl.value = backgroundColor;
+    backgroundColorControl.addEventListener('input', (event) => {
+        backgroundColor = event.target.value;
+        redrawTiling();
+    });
+    const strokeColorControl = document.getElementById('strokeColor');
+    const strokeEnabledControl = document.getElementById('strokeEnabled');
+    strokeEnabledControl.checked = showStoke;
+    strokeColorControl.value = strokeColor;
+    strokeColorControl.addEventListener('input', (event) => {
+        strokeColor = event.target.value;
+        redrawTiling();
+    });
+    strokeEnabledControl.addEventListener('input', (event) => {
+        showStoke = event.target.checked;
+        strokeColorControl.hidden = !showStoke;
+        redrawTiling();
+    });
 
     // Resize the canvas to fill the entire browser window
     function resizeCanvas() {
@@ -67,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function initializeColorPalettes() {
         const colorPalettes = document.getElementById('colorPalettes');
-        
+
         const option1 = document.createElement('option');
         option1.text = 'Mystics';
         option1.palette = new Mystics();
@@ -100,11 +122,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 const colorPicker = document.createElement('input');
                 colorPicker.type = 'color';
                 colorPicker.value = color.getHexValue();
+                const opacityControl = document.createElement('input');
+                opacityControl.type = 'range';
+                opacityControl.min = '0';
+                opacityControl.max = '1';
+                opacityControl.step = '0.01';
+                opacityControl.classList.add('opacityControl');
+                opacityControl.value = color.opacity || '1';
+                opacityControl.addEventListener('input', () => {
+                    color.opacity = opacityControl.value;
+                    redrawTiling();
+                });
                 colorPicker.addEventListener('input', () => {
-                       color.hexValue = colorPicker.value;
-                       redrawTiling();
+                    color.hexValue = colorPicker.value;
+                    redrawTiling();
                 });
                 colorPickers.appendChild(colorPicker);
+                colorPickers.appendChild(opacityControl);
             });
         });
     }
