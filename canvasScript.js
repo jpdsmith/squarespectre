@@ -2,7 +2,10 @@ import * as tiling from './tiling.js';
 import { Coord } from './coord.js';
 import { RangeSlider } from "./range_slider.js";
 import { Mystics, Conway } from "./colorings.js";
-import { ColorPalette } from './color_palette.js';
+
+const ASYNC_REDRAW_MIN_MILLIS = 500;
+let previousDrawTimeMillis = 0;
+let drawTilingId = -1;
 
 document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
@@ -22,7 +25,21 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeColorPalettes();
 
     function redrawTiling() {
-        tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette(), backgroundColor, showStoke, strokeColor);
+        const doRedraw = () => {
+            const startTime = performance.now();
+            tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette(), backgroundColor, showStoke, strokeColor);
+            const endTime = performance.now();
+            previousDrawTimeMillis = endTime - startTime;
+            if (previousDrawTimeMillis > ASYNC_REDRAW_MIN_MILLIS) {
+                console.log('Draw time: ' + previousDrawTimeMillis + 'ms');
+            }
+        };
+        //window.clearTimeout(drawTilingId);
+        if (previousDrawTimeMillis > ASYNC_REDRAW_MIN_MILLIS) {
+            drawTilingId = window.setTimeout(doRedraw, previousDrawTimeMillis);
+        } else {
+            doRedraw();
+        }
     }
 
 

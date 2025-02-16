@@ -217,19 +217,29 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale,
     const PA3z = rectangleZ(PB2z, TA2, N3z);
 
 
-    const TC3 = smallPropeller(PA3x, PA3y, PA3z, TD3, M3x, M3y, M3z);
-    // const TB3 = largePropeller(PA3x, PA3y, PA3z, TA2, TD3, M3x, M3y, M3z);
+    const TC3 = () => smallPropeller(PA3x, PA3y, PA3z, TD3, M3x, M3y, M3z);
+    const TB3 = () => largePropeller(PA3x, PA3y, PA3z, TA2, TD3, M3x, M3y, M3z);
 
-    // const TA3 = bird(TB3, TC3, S3x, S3y, S3z);
-    // const PB3x = penguinX(TB3, TC3, PA3x, S3y, S3z);
-    // const PB3y = penguinY(TB3, TC3, PA3y, S3x, S3z);
-    // const PB3z = penguinZ(TB3, TC3, PA3z, S3x, S3y);
+    const TA3 = () => bird(TB3(), TC3(), S3x, S3y, S3z);
+    const PB3x = () => penguinX(TB3(), TC3(), PA3x, S3y, S3z);
+    const PB3y = () => penguinY(TB3(), TC3(), PA3y, S3x, S3z);
+    const PB3z = () => penguinZ(TB3(), TC3(), PA3z, S3x, S3y);
 
-    // const TD4 = rose(TC3, PB3x, PB3y, PB3z, N4x, N4y, N4z);
+    const TD4 = () => rose(TC3(), PB3x(), PB3y(), PB3z(), N4x, N4y, N4z);
 
-    TC2.draw(ctx, angle, edgeMorph, startPosition, colorPalette, showStoke, strokeColor);
+    TA2.draw(ctx, angle, edgeMorph, startPosition, colorPalette, showStoke, strokeColor);
 
 }
+
+// const lazy = (f) => {
+//     let value = null;
+//     return () => {
+//         if (value === null) {
+//             value = f();
+//         }
+//         return value;
+//     }
+// };
 
 function conwayS(sa, ia, sb, ib, e, o, labels = []) {
     return sa.join(ia).join(sa).join(ia).join(sa)
