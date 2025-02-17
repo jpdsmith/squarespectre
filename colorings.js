@@ -1,13 +1,13 @@
-import {Color, ColorPalette} from "./color_palette.js";
+import { Color, ColorPalette } from "./color_palette.js";
 
-class Mystics extends ColorPalette {
+class Directional extends ColorPalette {
     constructor() {
         super();
-        this.oddColor =  new Color("#f0f0f0");
-        this.xColor =  new Color("#ff0000");
-        this.yColor =  new Color("#00ff00");
-        this.zColor =  new Color("#0000ff");
-        this.defaultColor =  new Color("#ffffff");
+        this.oddColor = new Color("#f0f0f0").withOpacity(0.01);
+        this.xColor = new Color("#ff0000").withOpacity(0.5);
+        this.yColor = new Color("#00ff00").withOpacity(0.5);
+        this.zColor = new Color("#0000ff").withOpacity(0.5);
+        this.defaultColor = new Color("#ffffff");
 
     }
 
@@ -52,15 +52,15 @@ class Mystics extends ColorPalette {
 class Conway extends ColorPalette {
     constructor() {
         super();
-        this.sColor =  new Color("#ff0000");
-        this.mColor =  new Color("#0000ff");
-        this.nColor =  new Color("#ffff00");
-        this.defaultColor =  new Color("#ffffff");
+        this.sColor = new Color("#ff0000");
+        this.mColor = new Color("#0000ff");
+        this.nColor = new Color("#ffff00");
+        this.defaultColor = new Color("#ffffff");
 
     }
 
     getLabels() {
-        return ["default", "S", "M", "N"];
+        return ["default", "M", "S", "N"];
     }
 
     getColorsForLabel(label) {
@@ -80,11 +80,17 @@ class Conway extends ColorPalette {
 
     getColorForLabels(labels, wormColorLabels) {
         let opacity = 1.0;
+        if (wormColorLabels.includes("S")) {
+            opacity *= 0.85;
+        }
+        if (wormColorLabels.includes("N")) {
+            opacity *= 0.7;
+        }
         if (wormColorLabels.includes("2")) {
-            opacity *= 0.65;
+            opacity *= 0.85;
         }
         if (wormColorLabels.includes("3")) {
-            opacity *= 0.65;
+            opacity *= 0.7;
         }
         if (wormColorLabels.includes("S")) {
             return this.sColor.withOpacity(opacity);
@@ -100,4 +106,4 @@ class Conway extends ColorPalette {
 }
 
 
-export {Mystics, Conway};
+export { Directional, Conway };

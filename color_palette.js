@@ -44,6 +44,10 @@ class Color {
         return this.hexValue;
     }
 
+    getRgbHexValue() {
+        return this.hexValue;
+    }
+
     withOpacity(opacity) {
         return new Color(this.hexValue, this.opacity * opacity);
     }

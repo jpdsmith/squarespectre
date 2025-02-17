@@ -11,18 +11,25 @@ const tipY = new TipPoint("Y");
 const tipZ = new TipPoint("Z");
 
 
-function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale, startPosition, colorPalette, backgroundColor, showStoke, strokeColor) {
+function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale, startPosition, colorPalette, backgroundColor, showStoke, strokeColor, substitutionLevel) {
 
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    const tile = generateTiling(ctx, angle, xValue, yValue, zValue, morph, scale, substitutionLevel);
+
+    tile.draw(ctx, angle, edgeMorph, startPosition, colorPalette, showStoke, strokeColor);
+}
+
+function generateTiling(ctx, angle, xValue, yValue, zValue, morph, scale, substitutionLevel) {
     const ANGLE_1 = Math.PI / 2;
     const ANGLE_2 = Math.PI / 3 + morph * Math.PI * (1 / 4 - 1 / 3);
     const ANGLE_3 = Math.PI / 6 + morph * Math.PI * (1 / 4 - 1 / 6);
     const ANGLE_4 = 0;
     const ANGLE_5 = -Math.PI / 6 + morph * Math.PI * (-1 / 4 + 1 / 6);
     const ANGLE_6 = -Math.PI / 3 + morph * Math.PI * (-1 / 4 + 1 / 3);
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     const e01 = new Edge(zValue * scale, ANGLE_1);
     const e02 = new Edge(xValue * scale, ANGLE_2 + angle);
     const e03 = new Edge(yValue * scale, ANGLE_3);
@@ -227,8 +234,22 @@ function drawTiling(ctx, angle, xValue, yValue, zValue, morph, edgeMorph, scale,
 
     const TD4 = () => rose(TC3(), PB3x(), PB3y(), PB3z(), N4x, N4y, N4z);
 
-    TA2.draw(ctx, angle, edgeMorph, startPosition, colorPalette, showStoke, strokeColor);
-
+    switch (substitutionLevel) {
+        case 0:
+            return TD1;
+        case 1:
+            return TC1;
+        case 2:
+            return TD2;
+        case 3:
+            return TC2;
+        case 4:
+            return TD3;
+        case 5:
+            return TC3();
+        default:
+            return TD4();
+    }
 }
 
 // const lazy = (f) => {

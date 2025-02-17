@@ -1,11 +1,13 @@
 import * as tiling from './tiling.js';
 import { Coord } from './coord.js';
 import { RangeSlider } from "./range_slider.js";
-import { Mystics, Conway } from "./colorings.js";
+import { Directional, Conway } from "./colorings.js";
 
-const ASYNC_REDRAW_MIN_MILLIS = 500;
+const ASYNC_REDRAW_MIN_MILLIS = 3000;
 let previousDrawTimeMillis = 0;
 let drawTilingId = -1;
+const substitutionLevels = ["1", "2", "3", "4", "5", "6", "7"];
+let substitutionLevel = 3;
 
 document.addEventListener('DOMContentLoaded', function () {
     const canvas = document.getElementById('myCanvas');
@@ -18,30 +20,49 @@ document.addEventListener('DOMContentLoaded', function () {
     let zfactor = 0.5;
     let startPosition = new Coord(1000, 500);
     let scale = 20;
-    let backgroundColor = '#000000';
-    let strokeColor = '#000000';
+    let backgroundColor = '#ffffff';
+    let strokeColor = '#666666';
     let showStoke = true;
+
+    document.getElementById('levelInput').value = substitutionLevels[substitutionLevel];
 
     initializeColorPalettes();
 
     function redrawTiling() {
         const doRedraw = () => {
             const startTime = performance.now();
-            tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette(), backgroundColor, showStoke, strokeColor);
+            tiling.drawTiling(ctx, angle, xfactor, yfactor, zfactor, morph, edgeMorph, scale, startPosition, getColorPalette(), backgroundColor, showStoke, strokeColor, substitutionLevel);
             const endTime = performance.now();
             previousDrawTimeMillis = endTime - startTime;
             if (previousDrawTimeMillis > ASYNC_REDRAW_MIN_MILLIS) {
                 console.log('Draw time: ' + previousDrawTimeMillis + 'ms');
             }
         };
-        //window.clearTimeout(drawTilingId);
+        window.clearTimeout(drawTilingId);
         if (previousDrawTimeMillis > ASYNC_REDRAW_MIN_MILLIS) {
-            drawTilingId = window.setTimeout(doRedraw, previousDrawTimeMillis);
+            drawTilingId = window.setTimeout(doRedraw, ASYNC_REDRAW_MIN_MILLIS);
         } else {
             doRedraw();
         }
     }
 
+    const decrementLevelButton = document.getElementById('decrementLevel');
+    decrementLevelButton.addEventListener('click', () => {
+        if (substitutionLevel > 0) {
+            substitutionLevel--;
+            document.getElementById('levelInput').value = substitutionLevels[substitutionLevel];
+            redrawTiling();
+        }
+    });
+
+    const incrementLevelButton = document.getElementById('incrementLevel');
+    incrementLevelButton.addEventListener('click', () => {
+        if (substitutionLevel < substitutionLevels.length - 1) {
+            substitutionLevel++;
+            document.getElementById('levelInput').value = substitutionLevels[substitutionLevel];
+            redrawTiling();
+        }
+    });
 
     const angleControl = document.getElementById('angleControl');
 
@@ -108,13 +129,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const colorPalettes = document.getElementById('colorPalettes');
 
         const option1 = document.createElement('option');
-        option1.text = 'Mystics';
-        option1.palette = new Mystics();
+        option1.text = 'Orientation Coloring';
+        option1.palette = new Directional();
         initializeColorPickers(option1.palette);
         colorPalettes.add(option1);
 
         const option2 = document.createElement('option');
-        option2.text = 'Conway';
+        option2.text = 'Conway Coloring';
         option2.palette = new Conway();
         colorPalettes.add(option2);
 
@@ -138,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
             colorPalette.getColorsForLabel(label).forEach(color => {
                 const colorPicker = document.createElement('input');
                 colorPicker.type = 'color';
-                colorPicker.value = color.getHexValue();
+                colorPicker.value = color.getRgbHexValue();
                 const opacityControl = document.createElement('input');
                 opacityControl.type = 'range';
                 opacityControl.min = '0';

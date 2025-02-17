@@ -99,6 +99,7 @@
     .short-length-container input[type="range"] {
       width: 50px;
     }
+
     input[type="range"].opacityControl {
       width: 200px;
     }
@@ -145,6 +146,10 @@
       padding-left: 1rem;
       font-size: 1.25rem;
     }
+
+    #levelInput {
+      width: 5em;
+    }
   </style>
   <link rel="stylesheet" href="./css/range.css">
 </head>
@@ -153,6 +158,30 @@
   <canvas id="myCanvas"></canvas>
   <div class="control-container">
 
+    <div class="controls">
+      <h3>Substitution</h3>
+      <button id="collapse-button-subs" class="open collapse-button" onclick="toggleCollapseSubstitutionSection()">
+      </button>
+      <script>
+        function toggleCollapseSubstitutionSection() {
+          const controlContents = document.getElementById('control-contents-subs');
+          controlContents.classList.toggle('open');
+          controlContents.classList.toggle('closed');
+
+          const btn = document.getElementById('collapse-buttonsubs');
+          btn.classList.toggle('open');
+          btn.classList.toggle('closed');
+        }
+      </script>
+      <div id="control-contents-subs" class="control-contents open">
+        <div class="number-control">
+          <label for="levelInput">Level:</label>
+          <button id="decrementLevel">-</button>
+          <input type="text" id="levelInput" value="" disabled>
+          <button id="incrementLevel">+</button>
+        </div>
+      </div>
+    </div>
     <div class="controls">
       <h3>Controls</h3>
       <button id="collapse-button" class="open collapse-button" onclick="toggleCollapse()">
