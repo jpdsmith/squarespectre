@@ -65,7 +65,7 @@
 
     .control-contents.open {
       opacity: 1;
-      max-height: 500px;
+      max-height: 800px;
     }
 
     .collapse-button::before {
@@ -168,7 +168,7 @@
           controlContents.classList.toggle('open');
           controlContents.classList.toggle('closed');
 
-          const btn = document.getElementById('collapse-buttonsubs');
+          const btn = document.getElementById('collapse-button-subs');
           btn.classList.toggle('open');
           btn.classList.toggle('closed');
         }
@@ -253,8 +253,8 @@
         </div>
         <div>
           <label for="edgeColor">Edges:</label>
-          <input type="checkbox" id="strokeEnabled" checked>
           <input type="color" id="strokeColor" value="#000000">
+          <input type="checkbox" id="strokeEnabled" checked>
         </div>
         <select id="colorPalettes" class="form-select form-select-lg mb-3">
         </select>

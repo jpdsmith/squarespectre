@@ -1,7 +1,7 @@
 import * as tiling from './tiling.js';
 import { Coord } from './coord.js';
 import { RangeSlider } from "./range_slider.js";
-import { Directional, Conway } from "./colorings.js";
+import { Directional, Conway, AdvancedColoring } from "./colorings.js";
 
 const ASYNC_REDRAW_MIN_MILLIS = 3000;
 let previousDrawTimeMillis = 0;
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     strokeEnabledControl.addEventListener('input', (event) => {
         showStoke = event.target.checked;
-        strokeColorControl.hidden = !showStoke;
+        strokeColorControl.disabled = !showStoke;
         redrawTiling();
     });
 
@@ -129,16 +129,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const colorPalettes = document.getElementById('colorPalettes');
 
         const option1 = document.createElement('option');
-        option1.text = 'Orientation Coloring';
-        option1.palette = new Directional();
+        option1.text = 'Conway Coloring';
+        option1.palette = new Conway();
         initializeColorPickers(option1.palette);
         colorPalettes.add(option1);
 
         const option2 = document.createElement('option');
-        option2.text = 'Conway Coloring';
-        option2.palette = new Conway();
+        option2.text = 'Orientation Coloring';
+        option2.palette = new Directional();
         colorPalettes.add(option2);
-
+        
+        const option3 = document.createElement('option');
+        option3.text = 'Full Control';
+        option3.palette = new AdvancedColoring();
+        colorPalettes.add(option3);
+        
         colorPalettes.addEventListener('change', () => {
             const colorPalette = colorPalettes.options[colorPalettes.selectedIndex].palette;
             initializeColorPickers(colorPalette);
@@ -168,11 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 opacityControl.classList.add('opacityControl');
                 opacityControl.value = color.opacity || '1';
                 opacityControl.addEventListener('input', () => {
-                    color.opacity = opacityControl.value;
+                    color.opacity = parseFloat(opacityControl.value);
                     redrawTiling();
                 });
                 colorPicker.addEventListener('input', () => {
-                    color.hexValue = colorPicker.value;
+                    color.updateHexValue(colorPicker.value);
                     redrawTiling();
                 });
                 colorPickers.appendChild(colorPicker);
