@@ -20,11 +20,16 @@
     .control-container {
       position: absolute;
       top: 0;
-      left: 10px;
+      left: 0;
       background: none;
-      padding: 0;
-      height: 100%;
+      padding: 10px;
+      height: fit-content;
+      max-height: 100%;
       overflow: scroll;
+      box-shadow: 2px 2px 7px #797979;
+      background: #ffffff50;
+      border-radius: 10px;
+      line-height: 1.0;
     }
 
     .controls {
@@ -33,7 +38,7 @@
       border-radius: 10px;
       width: 350px;
       min-height: 20px;
-      margin: 10px 0;
+      margin: 10px 0 0 0;
       padding: 10px;
     }
 
@@ -151,6 +156,20 @@
     #levelInput {
       width: 5em;
     }
+
+    .control-container.closed>.contents {
+      display: none;
+    }
+
+    #hamburger-menu {
+      background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="%23e8eaed"%3E%3Cpath d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/%3E%3C/svg%3E');
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      background-color: #797979;
+    }
   </style>
   <link rel="stylesheet" href="./css/range.css">
 </head>
@@ -158,108 +177,122 @@
 <body>
   <canvas id="myCanvas"></canvas>
   <div class="control-container">
+    <button id="hamburger-menu" class="hamburger open" onclick="toggleControlContainer()">
+    </button>
+    <script>
+      function toggleControlContainer() {
+        const controlContainer = document.querySelector('.control-container');
+        controlContainer.classList.toggle('open');
+        controlContainer.classList.toggle('closed');
 
-    <div class="controls">
-      <h3>Substitution</h3>
-      <button id="collapse-button-subs" class="open collapse-button" onclick="toggleCollapseSubstitutionSection()">
-      </button>
-      <script>
-        function toggleCollapseSubstitutionSection() {
-          const controlContents = document.getElementById('control-contents-subs');
-          controlContents.classList.toggle('open');
-          controlContents.classList.toggle('closed');
+        const btn = document.getElementById('hamburger-menu');
+        btn.classList.toggle('open');
+        btn.classList.toggle('closed');
+      }
+    </script>
+    <div class="contents">
+      <div class="controls">
+        <h3>Substitution</h3>
+        <button id="collapse-button-subs" class="open collapse-button" onclick="toggleCollapseSubstitutionSection()">
+        </button>
+        <script>
+          function toggleCollapseSubstitutionSection() {
+            const controlContents = document.getElementById('control-contents-subs');
+            controlContents.classList.toggle('open');
+            controlContents.classList.toggle('closed');
 
-          const btn = document.getElementById('collapse-button-subs');
-          btn.classList.toggle('open');
-          btn.classList.toggle('closed');
-        }
-      </script>
-      <div id="control-contents-subs" class="control-contents open">
-        <div class="number-control">
-          <label for="levelInput">Level:</label>
-          <button id="decrementLevel">-</button>
-          <input type="text" id="levelInput" value="" disabled>
-          <button id="incrementLevel">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="controls">
-      <h3>Controls</h3>
-      <button id="collapse-button" class="open collapse-button" onclick="toggleCollapse()">
-      </button>
-      <script>
-        function toggleCollapse() {
-          const controlContents = document.getElementById('control-contents');
-          controlContents.classList.toggle('open');
-          controlContents.classList.toggle('closed');
-
-          const btn = document.getElementById('collapse-button');
-          btn.classList.toggle('open');
-          btn.classList.toggle('closed');
-        }
-      </script>
-      <div id="control-contents" class="control-contents open">
-
-        <div class="angle-container">
-          <input type="range" id="angleControl" class="c-rng" min="0" max="360" step="1" value="90"
-            data-range="circular">
-        </div>
-        <div class="angle-container">
-          <input type="range" id="morphControl" class="c-rng" min="0" max="360" step="1" value="90"
-            data-range="circular">
-        </div>
-        <div class="length-container">
-          <div>
-            <label for="xFactor">X:</label>
-            <input type="range" id="xFactor" min="0" max="100" value="50">
-          </div>
-          <div>
-            <label for="yFactor">Y:</label>
-            <input type="range" id="yFactor" min="0" max="100" value="50">
-          </div>
-          <div>
-            <label for="zFactor">Z:</label>
-            <input type="range" id="zFactor" min="0" max="100" value="50">
-          </div>
-        </div>
-
-        <div class="short-length-container">
-          <div>
-            <label for="edgeMorph">Hole:</label>
-            <input type="range" id="edgeMorph" min="0" max="100" value="0">
+            const btn = document.getElementById('collapse-button-subs');
+            btn.classList.toggle('open');
+            btn.classList.toggle('closed');
+          }
+        </script>
+        <div id="control-contents-subs" class="control-contents open">
+          <div class="number-control">
+            <label for="levelInput">Level:</label>
+            <button id="decrementLevel">-</button>
+            <input type="text" id="levelInput" value="" disabled>
+            <button id="incrementLevel">+</button>
           </div>
         </div>
       </div>
-    </div>
+      <div class="controls">
+        <h3>Controls</h3>
+        <button id="collapse-button" class="open collapse-button" onclick="toggleCollapse()">
+        </button>
+        <script>
+          function toggleCollapse() {
+            const controlContents = document.getElementById('control-contents');
+            controlContents.classList.toggle('open');
+            controlContents.classList.toggle('closed');
 
-    <div class="controls">
-      <h3>Colors</h3>
-      <button id="collapse-button-color" class="open collapse-button" onclick="toggleCollapseColorSection()">
-      </button>
-      <script>
-        function toggleCollapseColorSection() {
-          const controlContents = document.getElementById('color-palette-contents');
-          controlContents.classList.toggle('open');
-          controlContents.classList.toggle('closed');
+            const btn = document.getElementById('collapse-button');
+            btn.classList.toggle('open');
+            btn.classList.toggle('closed');
+          }
+        </script>
+        <div id="control-contents" class="control-contents open">
 
-          const btn = document.getElementById('collapse-button-color');
-          btn.classList.toggle('open');
-          btn.classList.toggle('closed');
-        }
-      </script>
-      <div id="color-palette-contents" class="control-contents open">
-        <div>
-          <label for="backgroundColor">Background:</label>
-          <input type="color" id="backgroundColor" value="#ff0000">
+          <div class="angle-container">
+            <input type="range" id="angleControl" class="c-rng" min="0" max="360" step="1" value="90"
+              data-range="circular">
+          </div>
+          <div class="angle-container">
+            <input type="range" id="morphControl" class="c-rng" min="0" max="360" step="1" value="90"
+              data-range="circular">
+          </div>
+          <div class="length-container">
+            <div>
+              <label for="xFactor">X:</label>
+              <input type="range" id="xFactor" min="0" max="100" value="50">
+            </div>
+            <div>
+              <label for="yFactor">Y:</label>
+              <input type="range" id="yFactor" min="0" max="100" value="50">
+            </div>
+            <div>
+              <label for="zFactor">Z:</label>
+              <input type="range" id="zFactor" min="0" max="100" value="50">
+            </div>
+          </div>
+
+          <div class="short-length-container">
+            <div>
+              <label for="edgeMorph">Hole:</label>
+              <input type="range" id="edgeMorph" min="0" max="100" value="0">
+            </div>
+          </div>
         </div>
-        <div>
-          <label for="edgeColor">Edges:</label>
-          <input type="color" id="strokeColor" value="#000000">
-          <input type="checkbox" id="strokeEnabled" checked>
-        </div>
-        <select id="colorPalettes" class="form-select form-select-lg mb-3">
-        </select>
-        <div id="colorPickers">
+      </div>
+
+      <div class="controls">
+        <h3>Colors</h3>
+        <button id="collapse-button-color" class="open collapse-button" onclick="toggleCollapseColorSection()">
+        </button>
+        <script>
+          function toggleCollapseColorSection() {
+            const controlContents = document.getElementById('color-palette-contents');
+            controlContents.classList.toggle('open');
+            controlContents.classList.toggle('closed');
+
+            const btn = document.getElementById('collapse-button-color');
+            btn.classList.toggle('open');
+            btn.classList.toggle('closed');
+          }
+        </script>
+        <div id="color-palette-contents" class="control-contents open">
+          <div>
+            <label for="backgroundColor">Background:</label>
+            <input type="color" id="backgroundColor" value="#ff0000">
+          </div>
+          <div>
+            <label for="edgeColor">Edges:</label>
+            <input type="color" id="strokeColor" value="#000000">
+            <input type="checkbox" id="strokeEnabled" checked>
+          </div>
+          <select id="colorPalettes" class="form-select form-select-lg mb-3">
+          </select>
+          <div id="colorPickers">
+          </div>
         </div>
       </div>
     </div>
