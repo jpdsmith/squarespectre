@@ -7,6 +7,7 @@ import { Directional, Conway, AdvancedColoring } from "./colorings.js";
 const ELEMENT_IDS = {
     CANVAS: 'myCanvas',
     CONTROLS_PANEL: 'controls-panel',
+    CONTROLS_WRAPPER: 'controls-wrapper',
     HAMBURGER_MENU: 'hamburger-menu',
     LEVEL_INPUT: 'levelInput',
     DECREMENT_BTN: 'decrementLevel',
@@ -23,6 +24,7 @@ const ELEMENT_IDS = {
     COLOR_PALETTES: 'colorPalettes',
     COLOR_PICKERS: 'colorPickers',
 };
+const MIN_SCALE = 0.5;
 
 const MAX_SUBSTITUTION_LEVEL = 6; // Maximum depth for recursive tiling generation (0-based).
 const MORPH_SCALE_FACTOR = 2400 / 36000; // Scaling factor for morph control input.
@@ -269,6 +271,7 @@ function setupCanvasResizing() {
 /** Sets up listeners for the hamburger menu and collapsible sections within the control panel. */
 function setupUIControlListeners() {
     const controlsPanel = document.getElementById(ELEMENT_IDS.CONTROLS_PANEL);
+    const controlsWrapper = document.getElementById(ELEMENT_IDS.CONTROLS_WRAPPER);
     const hamburgerBtn = document.getElementById(ELEMENT_IDS.HAMBURGER_MENU);
 
     if (!controlsPanel || !hamburgerBtn) {
@@ -284,6 +287,7 @@ function setupUIControlListeners() {
         hamburgerBtn.classList.toggle('open', isOpening);
         hamburgerBtn.classList.toggle('closed', !isOpening);
         hamburgerBtn.setAttribute('aria-expanded', isOpening);
+        controlsWrapper.classList.toggle('hide-wrapper', !isOpening);
     });
 
     // Generic Collapse Toggle using Event Delegation on the panel
@@ -445,7 +449,7 @@ function calculateZoom(delta, centerX, centerY) {
     const oldScale = appState.scale;
 
     let newScale = oldScale * (1 - delta * zoomFactor);
-    newScale = Math.max(1, newScale);
+    newScale = Math.max(MIN_SCALE, newScale);
 
     if (newScale !== oldScale) {
         appState.startPosition.x = centerX - (centerX - appState.startPosition.x) * newScale / oldScale;
@@ -535,11 +539,10 @@ function setupZoomAndPan() {
             const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
             const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
 
-            // --- CORRECTED Pinch Zoom Logic ---
             const scaleFactor = currentDist / appState.pinchLastDist;
             const oldScale = appState.scale;
             let newScale = oldScale * scaleFactor;
-            newScale = Math.max(1, newScale);
+            newScale = Math.max(MIN_SCALE, newScale);
 
             if (newScale !== oldScale) {
                 appState.startPosition.x = centerX - (centerX - appState.startPosition.x) * newScale / oldScale;
@@ -548,7 +551,6 @@ function setupZoomAndPan() {
                 requestRedraw();
             }
             appState.pinchLastDist = currentDist;
-            // --- End Correction ---
         }
     }, { passive: false });
 

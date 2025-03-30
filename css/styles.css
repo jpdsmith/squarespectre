@@ -21,6 +21,10 @@ body {
     /* No background, no overflow, no padding needed here */
     /* Dimensions are determined by the aside inside it */
   }
+
+  #controls-wrapper.hide-wrapper {
+    width: 0;
+  }
   
   #controls-panel {
     /* position: relative; */ /* No longer needs position: absolute */
