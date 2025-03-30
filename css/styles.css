@@ -94,7 +94,7 @@ body {
   .controls-section h3 {
     font-family: monospace;
     font-size: 1.1em; /* Slightly smaller */
-    margin: 0 0 10px 0; /* Only bottom margin needed */
+    margin: 0 0 10px 2em; /* left margin avoids the collapse control */
     display: inline-block;
   }
   
@@ -102,7 +102,7 @@ body {
   .collapse-button {
     position: absolute; /* Position relative to parent section */
     top: 10px;
-    right: 10px;
+    left: 10px;
     background: #ccc;
     border: 1px solid #aaa; /* Add subtle border */
     border-radius: 5px;
@@ -127,12 +127,12 @@ body {
     border: solid #555555;
     border-width: 0 2px 2px 0;
     padding: 3px;
-    transform: rotate(-135deg); /* Pointing up (open state) */
+    transform: rotate(45deg); /* Pointing down (open state) */
   }
   
   /* Rotate chevron when button has 'closed' state */
   .collapse-button.closed::before {
-    transform: rotate(45deg); /* Pointing down */
+    transform: rotate(-45deg); /* Pointing right */
   }
   
   /* Collapsible content area */
