@@ -35,18 +35,19 @@ let appState = {
     edgeMorph: 1.0,
     morph: 0.0,
     factors: { x: 0.5, y: 0.5, z: 0.5 },
-    startPosition: new Coord(1000, 500), // Initial center point for drawing
-    scale: 20, // Initial zoom level
+    startPosition: new Coord(1000, 500),
+    scale: 20,
     backgroundColor: '#ffffff',
     strokeColor: '#666666',
     showStroke: true,
-    substitutionLevel: 3, // Initial substitution level (0-based)
-    currentPalette: null, // Active coloring strategy instance
-    isDragging: false, // Flag for canvas panning state
-    panLastPos: { x: 0, y: 0 }, // Last mouse/touch position during pan
-    pinchInitial: { dist: 0, scale: 1, center: { x: 0, y: 0 } }, // Initial state for pinch-zoom gesture
-    redrawRequested: false, // Flag to avoid multiple pending animation frames
-    rafId: null // ID of the requested animation frame
+    substitutionLevel: 3,
+    currentPalette: null,
+    isDragging: false,
+    panLastPos: { x: 0, y: 0 },
+    pinchInitial: { dist: 0, scale: 1, center: { x: 0, y: 0 } }, // Optional state for pinch start
+    pinchLastDist: 0, // Stores the touch distance from the previous move event during a pinch
+    redrawRequested: false,
+    rafId: null
 };
 
 // --- Main Setup ---
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     setupColorManagement();
     setupUIControlListeners();
-    resizeCanvas(); // Perform initial canvas sizing and drawing
+    resizeCanvas();
 });
 
 // --- Initialization Functions ---
@@ -86,7 +87,7 @@ function setupCanvasAndContext() {
  */
 function initializeStateFromDOM() {
     const levelInput = document.getElementById(ELEMENT_IDS.LEVEL_INPUT);
-    if (levelInput) levelInput.value = appState.substitutionLevel + 1; // Display 1-based level
+    if (levelInput) levelInput.value = appState.substitutionLevel + 1;
 
     const strokeEnabled = document.getElementById(ELEMENT_IDS.STROKE_ENABLED);
     const strokeColorInput = document.getElementById(ELEMENT_IDS.STROKE_COLOR);
@@ -120,10 +121,9 @@ function initializeStateFromDOM() {
         button.classList.toggle('closed', !isOpen);
     });
 
-    // Set an initial center position (refined further in resizeCanvas)
     appState.startPosition = new Coord(
-        Math.floor(0.5 * (appState.canvas.width || window.innerWidth)),
-        Math.floor(0.5 * (appState.canvas.height || window.innerHeight))
+        Math.floor(0.5 * (appState.canvas?.width || window.innerWidth)),
+        Math.floor(0.5 * (appState.canvas?.height || window.innerHeight))
     );
 }
 
@@ -154,7 +154,7 @@ function setupLevelControls() {
         const newLevel = appState.substitutionLevel + delta;
         if (newLevel >= 0 && newLevel <= MAX_SUBSTITUTION_LEVEL) {
             appState.substitutionLevel = newLevel;
-            levelInput.value = appState.substitutionLevel + 1; // Update read-only input (1-based)
+            levelInput.value = appState.substitutionLevel + 1;
             requestRedraw();
         }
     };
@@ -191,7 +191,7 @@ function createFactorInputListener(factorKey) {
     return (event) => {
         const value = parseFloat(event.target.value);
         if (!isNaN(value)) {
-            appState.factors[factorKey] = value / 100; // Convert percentage to 0-1 range
+            appState.factors[factorKey] = value / 100;
             requestRedraw();
         }
     };
@@ -217,7 +217,7 @@ function setupFactorInputs() {
         edgeMorphInput.addEventListener('input', (event) => {
             const value = parseFloat(event.target.value);
             if (!isNaN(value)) {
-                appState.edgeMorph = 1.0 - (value / 100); // Invert value (0=full, 100=none)
+                appState.edgeMorph = 1.0 - (value / 100);
                 requestRedraw();
             }
         });
@@ -289,7 +289,6 @@ function setupUIControlListeners() {
     // Generic Collapse Toggle using Event Delegation on the panel
     controlsPanel.addEventListener('click', (event) => {
         const button = event.target.closest('.collapse-button');
-        // Ignore clicks not on a collapse button, or clicks on the main hamburger
         if (!button || button.id === ELEMENT_IDS.HAMBURGER_MENU) return;
 
         const targetSelector = button.getAttribute('data-target');
@@ -312,7 +311,6 @@ function setupUIControlListeners() {
 
 /** Sets up the color palette selection dropdown and initializes the first palette. */
 function setupColorManagement() {
-    // Define available palettes and their corresponding class instances
     const palettes = [
         { name: 'Conway Coloring', instance: new Conway() },
         { name: 'Orientation Coloring', instance: new Directional() },
@@ -325,7 +323,6 @@ function setupColorManagement() {
         return;
     }
 
-    // Populate the dropdown
     palettes.forEach((p, index) => {
         const option = document.createElement('option');
         option.text = p.name;
@@ -335,7 +332,6 @@ function setupColorManagement() {
 
     const paletteInstances = palettes.map(p => p.instance);
 
-    // Function to update UI when palette changes
     const updateColorPickers = () => {
         const selectedIndex = parseInt(colorPalettesSelect.value, 10);
         if (!isNaN(selectedIndex) && selectedIndex < paletteInstances.length) {
@@ -344,7 +340,6 @@ function setupColorManagement() {
             requestRedraw();
         } else {
             console.error("Invalid palette selection.");
-            // Fallback to first palette if selection is invalid
             appState.currentPalette = paletteInstances[0] || null;
             if (appState.currentPalette) initializeColorPickers(appState.currentPalette);
             requestRedraw();
@@ -352,7 +347,7 @@ function setupColorManagement() {
     };
 
     colorPalettesSelect.addEventListener('change', updateColorPickers);
-    updateColorPickers(); // Initial setup based on default selection
+    updateColorPickers();
 }
 
 /**
@@ -365,21 +360,19 @@ function initializeColorPickers(colorPalette) {
         console.error(`Element "${ELEMENT_IDS.COLOR_PICKERS}" not found.`);
         return;
     }
-    colorPickersContainer.innerHTML = ''; // Clear previous pickers
+    colorPickersContainer.innerHTML = '';
 
     if (!colorPalette || typeof colorPalette.getLabels !== 'function') {
         console.warn("Invalid color palette object provided to initializeColorPickers.");
         return;
     }
 
-    // Create controls for each color defined by the palette
     colorPalette.getLabels().forEach(label => {
         if (typeof colorPalette.getColorsForLabel !== 'function') return;
         const colors = colorPalette.getColorsForLabel(label);
         if (!Array.isArray(colors)) return;
 
         colors.forEach(color => {
-            // Ensure the color object has the expected methods
             if (typeof color?.getRgbHexValue !== 'function' || typeof color?.updateHexValue !== 'function') {
                 console.warn(`Color object for label "${label}" is missing required methods.`);
                 return;
@@ -390,7 +383,7 @@ function initializeColorPickers(colorPalette) {
 
             const pickerLabel = document.createElement('label');
             pickerLabel.textContent = label + ": ";
-            const pickerId = `color-picker-${label}-${Math.random().toString(16).slice(2)}`; // Unique ID
+            const pickerId = `color-picker-${label}-${Math.random().toString(16).slice(2)}`;
             pickerLabel.htmlFor = pickerId;
             wrapper.appendChild(pickerLabel);
 
@@ -404,8 +397,7 @@ function initializeColorPickers(colorPalette) {
             });
             wrapper.appendChild(colorPicker);
 
-            // Add opacity slider if the color object supports it
-            if (color.hasOwnProperty('opacity')) {
+            if (color.hasOwnProperty('opacity') || typeof color.opacity !== 'undefined') {
                 const opacityId = `opacity-control-${label}-${Math.random().toString(16).slice(2)}`;
                 const opacityControl = document.createElement('input');
                 opacityControl.type = 'range';
@@ -416,7 +408,7 @@ function initializeColorPickers(colorPalette) {
                 opacityControl.classList.add('opacityControl');
                 opacityControl.title = `${label} Opacity`;
                 opacityControl.setAttribute('aria-label', `${label} Opacity`);
-                opacityControl.value = color.opacity ?? '1'; // Default to 1 if undefined
+                opacityControl.value = color.opacity ?? '1';
                 opacityControl.addEventListener('input', () => {
                     color.opacity = parseFloat(opacityControl.value);
                     requestRedraw();
@@ -432,6 +424,10 @@ function initializeColorPickers(colorPalette) {
 
 /** Calculates the distance between two touch points. */
 function getTouchDistance(event) {
+    if (event.touches.length !== 2) {
+        console.warn("getTouchDistance called with incorrect number of touches:", event.touches.length);
+        return 0;
+    }
     const dx = event.touches[0].clientX - event.touches[1].clientX;
     const dy = event.touches[0].clientY - event.touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
@@ -439,19 +435,19 @@ function getTouchDistance(event) {
 
 /**
  * Calculates the new scale and adjusts the start position to zoom towards a center point.
- * @param {number} delta - The zoom factor delta (positive for zoom in, negative for zoom out).
+ * @param {number} delta - A factor indicating zoom amount and direction.
  * @param {number} centerX - The x-coordinate of the zoom center.
  * @param {number} centerY - The y-coordinate of the zoom center.
  * @returns {boolean} True if the scale changed, false otherwise.
  */
 function calculateZoom(delta, centerX, centerY) {
-    const zoomFactor = 0.05; // Sensitivity of wheel zoom
+    const zoomFactor = 0.03;
     const oldScale = appState.scale;
-    let newScale = oldScale * (1 + delta * zoomFactor);
-    newScale = Math.max(1, newScale); // Prevent zooming out too far
+
+    let newScale = oldScale * (1 - delta * zoomFactor);
+    newScale = Math.max(1, newScale);
 
     if (newScale !== oldScale) {
-        // Adjust start position to keep the point under the cursor stationary
         appState.startPosition.x = centerX - (centerX - appState.startPosition.x) * newScale / oldScale;
         appState.startPosition.y = centerY - (centerY - appState.startPosition.y) * newScale / oldScale;
         appState.scale = newScale;
@@ -463,9 +459,11 @@ function calculateZoom(delta, centerX, centerY) {
 /** Sets up event listeners for mouse and touch interactions on the canvas (pan and zoom). */
 function setupZoomAndPan() {
     const canvas = appState.canvas;
+    if (!canvas) return;
 
     // --- Mouse Events ---
     canvas.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
         appState.isDragging = true;
         appState.panLastPos = { x: e.clientX, y: e.clientY };
         canvas.style.cursor = 'grabbing';
@@ -488,123 +486,139 @@ function setupZoomAndPan() {
             canvas.style.cursor = 'grab';
         }
     };
-    canvas.addEventListener('mouseup', stopDragging);
-    canvas.addEventListener('mouseleave', stopDragging); // Stop dragging if mouse leaves canvas
 
-    // Mouse Wheel Zoom
+    canvas.addEventListener('mouseup', (e) => {
+        if (e.button === 0) stopDragging();
+    });
+    canvas.addEventListener('mouseleave', stopDragging);
+
     canvas.addEventListener('wheel', (e) => {
-        e.preventDefault(); // Prevent page scrolling
+        e.preventDefault();
         const centerX = e.clientX;
         const centerY = e.clientY;
-        // Adjust delta for consistent zoom direction (scrolling down zooms out)
-        if (calculateZoom(-e.deltaY * 0.01, centerX, centerY)) {
+        if (calculateZoom(e.deltaY * 0.01, centerX, centerY)) {
             requestRedraw();
         }
-    }, { passive: false }); // passive: false needed for preventDefault
+    }, { passive: false });
 
     // --- Touch Events ---
     canvas.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) { // Pan start
-            appState.isDragging = true;
-            appState.panLastPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        } else if (e.touches.length === 2) { // Pinch start
-            e.preventDefault(); // Prevent default actions like page zoom
-            appState.isDragging = false; // Stop panning if two fingers are down
-            // Record initial pinch state
-            appState.pinchInitial.dist = getTouchDistance(e);
-            appState.pinchInitial.scale = appState.scale;
-            appState.pinchInitial.center = {
-                x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-                y: (e.touches[0].clientY + e.touches[1].clientY) / 2
-            };
+        if (e.touches.length === 1) {
+            if (appState.pinchLastDist === 0) {
+                appState.isDragging = true;
+                appState.panLastPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                canvas.style.cursor = 'grabbing';
+            }
+        } else if (e.touches.length === 2) {
+            e.preventDefault();
+            appState.isDragging = false;
+            canvas.style.cursor = 'default';
+
+            const currentDist = getTouchDistance(e);
+            appState.pinchLastDist = currentDist;
         }
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-        if (appState.isDragging && e.touches.length === 1) { // Pan move
-            e.preventDefault(); // Prevent page scroll
+        if (appState.isDragging && e.touches.length === 1) {
+            e.preventDefault();
             const deltaX = e.touches[0].clientX - appState.panLastPos.x;
             const deltaY = e.touches[0].clientY - appState.panLastPos.y;
             appState.startPosition.x += deltaX;
             appState.startPosition.y += deltaY;
             appState.panLastPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             requestRedraw();
-        } else if (e.touches.length === 2) { // Pinch move
-            e.preventDefault(); // Prevent default actions
-            const newTouchDist = getTouchDistance(e);
-            const scaleFactor = newTouchDist / appState.pinchInitial.dist;
-            // Current center of pinch
+        } else if (e.touches.length === 2 && appState.pinchLastDist > 0) {
+            e.preventDefault();
+
+            const currentDist = getTouchDistance(e);
             const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
             const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
 
+            // --- CORRECTED Pinch Zoom Logic ---
+            const scaleFactor = currentDist / appState.pinchLastDist;
             const oldScale = appState.scale;
-            let newScale = appState.pinchInitial.scale * scaleFactor;
-            newScale = Math.max(1, newScale); // Clamp minimum scale
+            let newScale = oldScale * scaleFactor;
+            newScale = Math.max(1, newScale);
 
             if (newScale !== oldScale) {
-                // Calculate pan needed to keep the visual center of the pinch stable
-                const pinchCenterXRelToStart_Initial = (appState.pinchInitial.center.x - appState.startPosition.x) / oldScale;
-                const pinchCenterYRelToStart_Initial = (appState.pinchInitial.center.y - appState.startPosition.y) / oldScale;
-
-                // Calculate the new start position based on the current pinch center and the desired new scale
-                const newStartX = centerX - pinchCenterXRelToStart_Initial * newScale;
-                const newStartY = centerY - pinchCenterYRelToStart_Initial * newScale;
-
-                appState.startPosition.x = newStartX;
-                appState.startPosition.y = newStartY;
+                appState.startPosition.x = centerX - (centerX - appState.startPosition.x) * newScale / oldScale;
+                appState.startPosition.y = centerY - (centerY - appState.startPosition.y) * newScale / oldScale;
                 appState.scale = newScale;
                 requestRedraw();
             }
+            appState.pinchLastDist = currentDist;
+            // --- End Correction ---
         }
     }, { passive: false });
 
     canvas.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) { // Fewer than 2 fingers left
-            appState.isDragging = false; // Stop potential pan
+        const remainingTouches = e.touches.length;
+
+        if (remainingTouches < 2) {
+            appState.pinchLastDist = 0;
+            canvas.style.cursor = 'grab';
         }
-        if (e.touches.length === 0) { // All fingers lifted
-            // Reset pinch state if needed (optional)
-            appState.pinchInitial = { dist: 0, scale: 1, center: { x: 0, y: 0 } };
+
+        if (remainingTouches === 1) {
+            if (!appState.isDragging) {
+                appState.isDragging = true;
+                appState.panLastPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                canvas.style.cursor = 'grabbing';
+            }
+        } else if (remainingTouches === 0) {
+            if (appState.isDragging) {
+                appState.isDragging = false;
+                canvas.style.cursor = 'grab';
+            }
         }
     });
+
+    canvas.addEventListener('touchcancel', (e) => {
+        appState.isDragging = false;
+        appState.pinchLastDist = 0;
+        canvas.style.cursor = 'grab';
+    });
 }
+
 
 // --- Rendering ---
 
 /**
  * Adjusts the canvas internal resolution to match its display size
- * and recalculates the start position to maintain the center point.
+ * and recalculates the start position to maintain the visual center.
  */
 function resizeCanvas() {
     const canvas = appState.canvas;
     if (!canvas) return;
 
-    // Store old dimensions for calculating relative center
     const oldCanvasWidth = canvas.width || window.innerWidth;
     const oldCanvasHeight = canvas.height || window.innerHeight;
 
-    // Get current display dimensions dictated by CSS
     const rect = canvas.getBoundingClientRect();
     const newWidth = rect.width;
     const newHeight = rect.height;
 
-    // Only resize and redraw if dimensions actually changed
     if (canvas.width !== newWidth || canvas.height !== newHeight) {
-        // Calculate where the center was relative to the old size
-        const relativeCenterX = appState.startPosition.x / oldCanvasWidth;
-        const relativeCenterY = appState.startPosition.y / oldCanvasHeight;
+        const relativeCenterX = oldCanvasWidth > 0 ? appState.startPosition.x / oldCanvasWidth : 0.5;
+        const relativeCenterY = oldCanvasHeight > 0 ? appState.startPosition.y / oldCanvasHeight : 0.5;
 
-        // Set the canvas drawing buffer size
         canvas.width = newWidth;
         canvas.height = newHeight;
 
-        // Recalculate the absolute pixel position of the center for the new size
-        appState.startPosition = new Coord(
-            Math.floor(relativeCenterX * newWidth),
-            Math.floor(relativeCenterY * newHeight)
-        );
+        appState.startPosition.x = Math.floor(relativeCenterX * newWidth);
+        appState.startPosition.y = Math.floor(relativeCenterY * newHeight);
 
         requestRedraw();
+    } else {
+        // Fallback centering logic on initial load if needed
+        if (appState.startPosition.x === 1000 && appState.startPosition.y === 500) {
+            appState.startPosition = new Coord(
+                Math.floor(0.5 * newWidth),
+                Math.floor(0.5 * newHeight)
+            );
+            requestRedraw();
+        }
     }
 }
 
@@ -615,6 +629,9 @@ function resizeCanvas() {
 function requestRedraw() {
     if (!appState.redrawRequested) {
         appState.redrawRequested = true;
+        if (appState.rafId) {
+            window.cancelAnimationFrame(appState.rafId);
+        }
         appState.rafId = window.requestAnimationFrame(updateCanvas);
     }
 }
@@ -625,17 +642,16 @@ function requestRedraw() {
  * @param {DOMHighResTimeStamp} timestamp - The timestamp provided by requestAnimationFrame.
  */
 function updateCanvas(timestamp) {
-    appState.redrawRequested = false; // Reset the flag
+    appState.redrawRequested = false;
+    appState.rafId = null;
 
-    if (!appState.ctx || !appState.currentPalette) {
-        console.error("Cannot draw: Rendering context or Color Palette missing.");
+    if (!appState.ctx || !appState.currentPalette || !appState.canvas) {
+        console.error("Cannot draw: Rendering context, Color Palette, or Canvas missing.");
         return;
     }
 
-    // Optional: Performance timing
     // const startTime = performance.now();
 
-    // Call the core tiling drawing function with current state
     tiling.drawTiling(
         appState.ctx,
         appState.angleRad,
@@ -653,7 +669,6 @@ function updateCanvas(timestamp) {
         appState.substitutionLevel
     );
 
-    // Optional: Performance timing
     // const endTime = performance.now();
     // console.log(`Draw time: ${endTime - startTime}ms`);
 }
