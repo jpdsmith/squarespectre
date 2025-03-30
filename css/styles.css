@@ -1,0 +1,240 @@
+/* css/styles.css */
+body {
+    margin: 0;
+    overflow: hidden; /* Keep this, prevents scrollbars from appearing due to canvas/controls */
+    background-color: #f0f0f0;
+    position: relative; /* Needed for absolute positioning of aside */
+    min-height: 100vh; /* Ensure body takes full height */
+  }
+  
+  canvas {
+    display: block; /* Prevents extra space below canvas */
+    width: 100%;   /* Ensure canvas tries to fill viewport width */
+    height: 100vh; /* Ensure canvas tries to fill viewport height */
+  }
+  
+  #controls-wrapper {
+    position: absolute; /* Or fixed if you want it fixed during page scroll */
+    top: 10px;
+    left: 10px;
+    z-index: 10; /* Wrapper handles the base z-index */
+    /* No background, no overflow, no padding needed here */
+    /* Dimensions are determined by the aside inside it */
+  }
+  
+  #controls-panel {
+    /* position: relative; */ /* No longer needs position: absolute */
+    background: #ffffffa0;
+    padding: 10px;
+    width: 350px; /* Give the panel an explicit width */
+    max-height: calc(100vh - 20px); /* Still limit height */
+    box-shadow: 2px 2px 7px #797979;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transform: translateX(0); /* Start visible */
+    opacity: 1;
+    /* No z-index needed here, handled by wrapper */
+  }
+  
+  #controls-panel.closed {
+    transform: translateX(calc(-100% - 10px)); /* Slide fully out, including its left padding */
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  #hamburger-menu {
+    position: absolute; /* Position relative to #controls-wrapper */
+    top: 5px;
+    /* Place it relative to the wrapper's left edge, which aligns with the visible panel's left edge */
+    /* If panel width is 330px and padding 10px, it's complex */
+    /* Easiest: position relative to the RIGHT edge of the SLIDING panel */
+    left: 350px; /* Position it just to the right of the panel's content area */
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="%23555555"%3E%3Cpath d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/%3E%3C/svg%3E');
+    background-color: #bdbdbd;
+    border: 1px solid #797979;
+    border-radius: 0 5px 5px 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    z-index: 11; /* Ensure it's above the sliding panel */
+    pointer-events: auto; /* Always allow clicking */
+  }
+  
+  #hamburger-menu:hover {
+      background-color: #cacaca;
+  }
+
+  /* Hide content when panel is logically closed */
+  #controls-panel.closed > #controls-panel-content {
+      visibility: hidden; /* Use visibility instead of display:none for transitions */
+  }
+  /* Show when open */
+  #controls-panel.open > #controls-panel-content {
+      visibility: visible;
+  }
+  
+  
+  /* Control sections within the panel */
+  .controls-section { /* Renamed from .controls */
+    background: #a4a2ae9e;
+    padding: 10px;
+    border-radius: 8px; /* Slightly smaller radius */
+    width: 330px; /* Adjusted width */
+    margin: 10px 0; /* Consistent margin */
+    position: relative; /* For positioning collapse button */
+  }
+  
+  .controls-section h3 {
+    font-family: monospace;
+    font-size: 1.1em; /* Slightly smaller */
+    margin: 0 0 10px 0; /* Only bottom margin needed */
+    display: inline-block;
+  }
+  
+  /* Common Collapse Button Style */
+  .collapse-button {
+    position: absolute; /* Position relative to parent section */
+    top: 10px;
+    right: 10px;
+    background: #ccc;
+    border: 1px solid #aaa; /* Add subtle border */
+    border-radius: 5px;
+    padding: 0; /* Remove padding, use flexbox */
+    cursor: pointer;
+    width: 22px; /* Consistent size */
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-out; /* Smooth rotation */
+  }
+  
+  .collapse-button:hover {
+      background-color: #ddd;
+  }
+  
+  /* Chevron icon using borders */
+  .collapse-button::before {
+    content: '';
+    display: inline-block;
+    border: solid #555555;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    transform: rotate(-135deg); /* Pointing up (open state) */
+  }
+  
+  /* Rotate chevron when button has 'closed' state */
+  .collapse-button.closed::before {
+    transform: rotate(45deg); /* Pointing down */
+  }
+  
+  /* Collapsible content area */
+  .control-contents {
+    transition: max-height 0.25s ease-out, opacity 0.2s ease-out, visibility 0.25s;
+    max-height: 800px; /* Adjust max-height as needed */
+    opacity: 1;
+    overflow: hidden; /* Important for max-height transition */
+    visibility: visible;
+  }
+  
+  .control-contents.closed {
+    max-height: 0;
+    opacity: 0;
+    /* visibility: hidden; */ /* Hides instantly, conflicts with transition */
+     /* Use a delay or handle focus management in JS if needed */
+     pointer-events: none; /* Prevent interaction when closed */
+  
+  }
+  
+  /* Specific Input Styling */
+  .angle-container {
+    margin-bottom: 10px; /* Add spacing */
+  }
+  
+  /* Remove fixed width, let it adapt or control via parent */
+  /* .angle-container input[type="range"] { width: 360px; } */
+  /* .length-container input[type="range"] { width: 200px; } */
+  /* .short-length-container input[type="range"] { width: 50px; } */
+  /* input[type="range"].opacityControl { width: 200px; } */
+  
+  .length-container > div,
+  .short-length-container > div {
+      margin-bottom: 5px; /* Space out factor/hole controls */
+      display: flex; /* Align label and input */
+      align-items: center;
+  }
+  .length-container label,
+  .short-length-container label {
+      margin-right: 5px;
+      min-width: 30px; /* Align labels */
+  }
+  
+  input[type="range"] {
+      flex-grow: 1; /* Allow range to take available space */
+      max-width: 250px; /* But don't let them get too wide */
+  }
+  
+  input[type=range][hidden] {
+    display: none;
+  }
+  
+  /* Form Select Styling (Bootstrap-like) */
+  .form-select {
+    display: block;
+    width: 100%;
+    padding: .375rem 2.25rem .375rem .75rem;
+    -moz-padding-start: calc(0.75rem - 3px);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin-bottom: 1rem; /* Equivalent to mb-3 */
+  }
+  
+  .form-select-lg {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    padding-left: 1rem;
+    font-size: 1.25rem;
+  }
+  
+  /* Level input specific */
+  #levelInput {
+    width: 4em; /* Adjusted width */
+    text-align: center;
+    margin: 0 5px;
+  }
+  
+  /* Color Picker styling */
+  #colorPickers .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+  }
+  #colorPickers .color-picker-wrapper label { /* Assuming spans are used */
+      margin-right: 5px;
+      min-width: 100px; /* Adjust as needed for label alignment */
+  }
+  #colorPickers input[type="color"] {
+      margin-right: 5px;
+      height: 25px;
+      padding: 0 2px; /* Some browsers need padding */
+  }
+  #colorPickers input[type="range"].opacityControl {
+      max-width: 150px; /* Control opacity slider width */
+      flex-grow: 1;
+  }

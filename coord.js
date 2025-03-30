@@ -4,7 +4,6 @@ class Coord {
         this.y = y;
     }
 
-
     plus(val) {
         return new Coord(this.x + val.x, this.y + val.y);
     }
